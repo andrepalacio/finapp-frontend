@@ -1,0 +1,7 @@
+export { auth }         from './endpoints/auth'
+export { workspaces }   from './endpoints/workspaces'
+export { transactions } from './endpoints/transactions'
+export { categories }   from './endpoints/categories'
+export { budget }       from './endpoints/budget'
+export { debts }        from './endpoints/debts'
+export { savings }      from './endpoints/savings'

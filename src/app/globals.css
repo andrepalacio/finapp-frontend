@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   FinApp — Sistema visual
+   Crema cálido + tinta verde billete + acentos terracota/salvia
+   ============================================================ */
+:root {
+  /* Fondos */
+  --bg:         #FBF7F4;
+  --surface:    #FFFFFF;
+  --surface-2:  #F1ECE3;
+  --line:       #E5DFD2;
+  --line-soft:  #EFE9DD;
+
+  /* Tinta */
+  --ink:        #1F4D3A;
+  --ink-2:      #2F6650;
+  --ink-3:      #6E8B7E;
+  --ink-4:      #A8BBB1;
+
+  /* Terracota — gastos / negativo */
+  --terra:      #C9603F;
+  --terra-2:    #B05130;
+  --terra-bg:   #F4D9CC;
+
+  /* Emerald — ingresos / positivo */
+  --emerald:    #2E8B57;
+  --emerald-2:  #207547;
+  --emerald-bg: #D5EAD9;
+
+  /* Gold — presupuesto / advertencia */
+  --gold:       #C9A24B;
+  --gold-bg:    #F0E2BD;
+
+  /* Salvia — secundario */
+  --salvia:     #7A8B6C;
+  --salvia-2:   #5F7256;
+  --salvia-bg:  #E4EAD9;
+
+  /* Semánticos */
+  --pos:        #2E8B57;
+  --neg:        #C9603F;
+  --warn:       #C9A24B;
+
+  /* Border radii */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 0 rgba(43, 33, 24, 0.04);
+  --shadow-md: 0 6px 20px -10px rgba(43, 33, 24, 0.18), 0 1px 0 rgba(43, 33, 24, 0.04);
+  --shadow-lg: 0 24px 60px -28px rgba(43, 33, 24, 0.30), 0 2px 0 rgba(43, 33, 24, 0.04);
+
+  /* Tipografía — inyectadas por next/font */
+  --font-sans:  var(--font-inter, 'Inter', ui-sans-serif, system-ui, sans-serif);
+  --font-serif: var(--font-instrument-serif, 'Instrument Serif', Georgia, serif);
+  --font-mono:  'JetBrains Mono', ui-monospace, monospace;
+
+  /* shadcn/ui aliases (HSL-wrapped para compatibilidad) */
+  --background:       0 0% 100%;
+  --foreground:       153 43% 21%;
+  --card:             0 0% 100%;
+  --card-foreground:  153 43% 21%;
+  --primary:          153 43% 21%;
+  --primary-foreground: 39 33% 97%;
+  --secondary:        37 27% 91%;
+  --secondary-foreground: 153 43% 21%;
+  --muted:            37 27% 91%;
+  --muted-foreground: 155 14% 49%;
+  --accent:           37 27% 91%;
+  --accent-foreground: 153 43% 21%;
+  --destructive:      15 56% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border:           36 28% 87%;
+  --input:            36 28% 87%;
+  --ring:             153 43% 21%;
+  --radius: 0.5rem;
+}
+
+/* Base */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01', 'tnum';
+}
+
+/* Numeric tabular figures for financial data */
+.tabular-nums { font-feature-settings: 'tnum'; }
+
+/* Utility: page title style */
+.page-title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
