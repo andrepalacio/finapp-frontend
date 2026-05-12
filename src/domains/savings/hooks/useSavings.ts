@@ -9,6 +9,7 @@ export function useSavingsGoals(workspaceId: string) {
     queryKey: ['savings', workspaceId],
     queryFn:  () => savings.list(workspaceId),
     enabled:  !!workspaceId,
+    retry:    false,
   })
 }
 
@@ -17,6 +18,7 @@ export function useSavingsGoal(workspaceId: string, id: string) {
     queryKey: ['savings', workspaceId, id],
     queryFn:  () => savings.get(workspaceId, id),
     enabled:  !!workspaceId && !!id,
+    retry:    false,
   })
 }
 

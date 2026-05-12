@@ -1,17 +1,68 @@
+import { Suspense }                    from 'react'
+import { workspaces as workspacesApi } from '@/lib/api/endpoints/workspaces'
+import { transactions }                from '@/lib/api/endpoints/transactions'
+import { SummaryStrip }               from '@/domains/transactions/components/SummaryStrip'
+import Link                           from 'next/link'
+
 interface Props {
   params: Promise<{ workspaceId: string }>
+}
+
+function toISODate(d: Date) {
+  return d.toISOString().slice(0, 10)
 }
 
 export default async function WorkspaceDashboardPage({ params }: Props) {
   const { workspaceId } = await params
 
+  const now   = new Date()
+  const year  = now.getFullYear()
+  const month = now.getMonth() + 1
+
+  const monthStart = toISODate(new Date(year, month - 1, 1))
+  const monthEnd   = toISODate(new Date(year, month, 0))
+
+  let currency = 'COP'
+  let summary: import('@/types/domain').DailySummary[] = []
+
+  try {
+    const [ws, sum] = await Promise.all([
+      workspacesApi.get(workspaceId),
+      transactions.summary(workspaceId, { date_from: monthStart, date_to: monthEnd }),
+    ])
+    currency = ws.currency
+    summary  = Array.isArray(sum) ? sum : []
+  } catch { /* fallback */ }
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="page-title">Inicio</h1>
-        <p className="text-sm text-ink-3 mt-1">Workspace: {workspaceId}</p>
+    <div className="space-y-8">
+      <Suspense>
+        <SummaryStrip
+          summary={summary}
+          currency={currency}
+          year={year}
+          month={month}
+        />
+      </Suspense>
+
+      {/* Quick nav cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { href: 'transactions', label: 'Transacciones', emoji: '📋' },
+          { href: 'budget',       label: 'Presupuesto',   emoji: '📊' },
+          { href: 'savings',      label: 'Metas',         emoji: '🎯' },
+          { href: 'debts',        label: 'Deudas',        emoji: '💳' },
+        ].map(({ href, label, emoji }) => (
+          <Link
+            key={href}
+            href={`/w/${workspaceId}/${href}`}
+            className="bg-surface rounded-[var(--r-lg)] border border-line p-4 text-center hover:shadow-[var(--shadow-md)] transition-shadow"
+          >
+            <span className="text-2xl">{emoji}</span>
+            <p className="text-xs text-ink-3 mt-2 font-medium">{label}</p>
+          </Link>
+        ))}
       </div>
-      <p className="text-ink-3 text-sm">[Dashboard cards van aqui]</p>
     </div>
   )
 }

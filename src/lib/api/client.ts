@@ -1,4 +1,5 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1'
+// Server inside Docker → host.docker.internal. Client in browser → /api/proxy.
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1'
 
 export class ApiError extends Error {
   constructor(
@@ -12,15 +13,13 @@ export class ApiError extends Error {
 }
 
 async function getAuthHeader(): Promise<HeadersInit> {
-  // Server-side: read httpOnly cookie via next/headers
-  if (typeof window === 'undefined') {
-    try {
-      const { cookies } = await import('next/headers')
-      const token = cookies().get('access_token')?.value
-      if (token) return { Authorization: `Bearer ${token}` }
-    } catch {
-      // Not in a request context (e.g. build time)
-    }
+  // Server-side only — client routes through /api/proxy which handles auth
+  try {
+    const { cookies } = await import('next/headers')
+    const token = cookies().get('access_token')?.value
+    if (token) return { Authorization: `Bearer ${token}` }
+  } catch {
+    // Outside request context (build time, edge runtime without cookies)
   }
   return {}
 }
@@ -30,10 +29,15 @@ async function fetchApi<T>(
   path: string,
   body?: unknown,
   query?: Record<string, unknown>,
+  _retried = false,
 ): Promise<T> {
-  const authHeader = await getAuthHeader()
+  const isClient = typeof window !== 'undefined'
 
-  let url = `${BASE_URL}${path}`
+  // Client → proxy (same-origin, no CORS, auth handled server-side).
+  // Server → backend directly (Docker DNS resolves host.docker.internal).
+  const urlBase = isClient ? '/api/proxy' : BACKEND_URL
+
+  let url = `${urlBase}${path}`
   if (query && Object.keys(query).length > 0) {
     const qs = new URLSearchParams(
       Object.entries(query)
@@ -43,15 +47,31 @@ async function fetchApi<T>(
     url = `${url}?${qs}`
   }
 
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (!isClient) {
+    const authHeader = await getAuthHeader()
+    Object.assign(headers, authHeader)
+  }
+
   const res = await fetch(url, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeader,
-    },
+    headers,
     body: body != null ? JSON.stringify(body) : undefined,
-    credentials: 'include',
+    cache: method === 'GET' ? 'no-store' : undefined,
   })
+
+  // Client-side 401: attempt silent token refresh once
+  if (res.status === 401 && !_retried && isClient) {
+    const refreshRes = await fetch('/api/auth/refresh', {
+      method:      'POST',
+      credentials: 'include',
+    })
+    if (refreshRes.ok) {
+      return fetchApi<T>(method, path, body, query, true)
+    }
+    window.location.href = '/login'
+    throw new ApiError('UNAUTHORIZED', 'Sesion expirada', 401)
+  }
 
   if (!res.ok) {
     const payload = await res.json().catch(() => ({ error: 'Request failed', code: 'UNKNOWN' }))

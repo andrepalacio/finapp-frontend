@@ -1,3 +1,6 @@
+import { Suspense } from 'react'
+import { LoginForm } from '@/domains/auth/components/LoginForm'
+
 export default function LoginPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-bg">
@@ -14,20 +17,33 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <blockquote className="relative mt-auto font-serif text-[32px] leading-[1.15] tracking-tight -ml-0.5">
-          &ldquo;Cada peso que registras<br />
-          es un peso que entiendes.&rdquo;
-        </blockquote>
+        <div className="relative mt-auto">
+          <blockquote className="font-serif text-[32px] leading-[1.15] tracking-tight -ml-0.5">
+            &ldquo;Cada peso que registras<br />
+            es un peso que entiendes.&rdquo;
+          </blockquote>
+          <div className="flex gap-5 mt-14 text-[11px] tracking-[0.08em] uppercase text-bg/45">
+            <span>Privado por diseno</span>
+            <span>·</span>
+            <span>Open source</span>
+            <span>·</span>
+            <span>Hecho en Colombia</span>
+          </div>
+        </div>
       </div>
 
-      {/* Form column — placeholder */}
+      {/* Form column */}
       <div className="flex items-center justify-center px-8 py-12">
-        <div className="w-full max-w-sm space-y-6">
-          <div>
-            <h2 className="font-serif text-3xl text-ink">Bienvenido</h2>
-            <p className="text-ink-3 text-sm mt-1">Inicia sesion en tu cuenta</p>
-          </div>
-          <p className="text-ink-3 text-sm">[LoginForm va aqui]</p>
+        <div className="w-full max-w-sm">
+          <p className="text-[12px] tracking-[0.1em] uppercase text-ink-3 mb-2">
+            Bienvenido de vuelta
+          </p>
+          <h1 className="font-serif text-[40px] leading-[1.05] tracking-tight mb-7">
+            Entra a tu cuenta
+          </h1>
+          <Suspense>
+            <LoginForm />
+          </Suspense>
         </div>
       </div>
     </div>

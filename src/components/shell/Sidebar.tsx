@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { WorkspaceSwitcher } from '@/domains/workspaces/components/WorkspaceSwitcher'
+import type { Workspace } from '@/types/domain'
 
 interface NavItem {
   href: string
@@ -70,9 +72,10 @@ interface SidebarProps {
   workspaceId: string
   workspaceName: string
   userName: string
+  workspaces: Workspace[]
 }
 
-export function Sidebar({ workspaceId, workspaceName, userName }: SidebarProps) {
+export function Sidebar({ workspaceId, workspaceName: _workspaceName, userName, workspaces }: SidebarProps) {
   const pathname = usePathname()
   const base = `/w/${workspaceId}`
 
@@ -134,17 +137,13 @@ export function Sidebar({ workspaceId, workspaceName, userName }: SidebarProps) 
         </Link>
       </nav>
 
-      {/* Workspace + user footer */}
+      {/* Workspace switcher footer */}
       <div className="px-3 pb-5">
-        <div className="flex items-center gap-2.5 px-2 py-2 rounded-[var(--r-sm)] bg-surface-2">
-          <div className="w-7 h-7 rounded-full bg-ink text-bg text-xs font-medium flex items-center justify-center shrink-0">
-            {userName.charAt(0).toUpperCase()}
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-medium text-ink truncate">{workspaceName}</p>
-            <p className="text-[10px] text-ink-3 truncate">{userName}</p>
-          </div>
-        </div>
+        <WorkspaceSwitcher
+          currentWorkspaceId={workspaceId}
+          workspaces={workspaces}
+          userName={userName}
+        />
       </div>
     </aside>
   )

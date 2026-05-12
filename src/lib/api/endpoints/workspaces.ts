@@ -1,5 +1,5 @@
 import { apiClient }                from '@/lib/api/client'
-import type { Workspace }          from '@/types/domain'
+import type { Workspace, WorkspaceMember, WorkspaceInvitation, AlertsResponse } from '@/types/domain'
 import type { CreateWorkspaceInput } from '@/domains/workspaces/schemas'
 
 export const workspaces = {
@@ -17,5 +17,36 @@ export const workspaces = {
   },
   delete(id: string) {
     return apiClient.delete<void>(`/workspaces/${id}`)
+  },
+
+  members: {
+    list(wsId: string) {
+      return apiClient.get<WorkspaceMember[]>(`/workspaces/${wsId}/members`)
+    },
+    updateRole(wsId: string, userId: string, role: string) {
+      return apiClient.put<void>(`/workspaces/${wsId}/members/${userId}/role`, { role })
+    },
+    remove(wsId: string, userId: string) {
+      return apiClient.delete<void>(`/workspaces/${wsId}/members/${userId}`)
+    },
+  },
+
+  invitations: {
+    list(wsId: string) {
+      return apiClient.get<WorkspaceInvitation[]>(`/workspaces/${wsId}/invitations`)
+    },
+    send(wsId: string, email: string, role: string) {
+      return apiClient.post<WorkspaceInvitation>(`/workspaces/${wsId}/invitations`, { email, role })
+    },
+    cancel(wsId: string, invId: string) {
+      return apiClient.delete<void>(`/workspaces/${wsId}/invitations/${invId}`)
+    },
+    accept(token: string) {
+      return apiClient.get<WorkspaceInvitation>(`/invitations/accept?token=${token}`)
+    },
+  },
+
+  alerts(wsId: string) {
+    return apiClient.get<AlertsResponse>(`/workspaces/${wsId}/alerts`)
   },
 }

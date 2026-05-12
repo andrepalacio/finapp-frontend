@@ -156,3 +156,67 @@ export interface SavingsContribution {
   notes:          string | null
   created_at:     string
 }
+
+/* ── Members ─────────────────────────────────────────────────────── */
+export type WorkspaceRole = 'owner' | 'admin' | 'member'
+
+export interface WorkspaceMember {
+  user_id:   string
+  role:      WorkspaceRole
+  joined_at: string
+  name:      string
+  email:     string
+}
+
+/* ── Invitations ─────────────────────────────────────────────────── */
+export type InvitationStatus = 'pending' | 'accepted' | 'cancelled'
+
+export interface WorkspaceInvitation {
+  id:           string
+  workspace_id: string
+  email:        string
+  role:         WorkspaceRole
+  token:        string
+  status:       InvitationStatus
+  invited_by:   string
+  expires_at:   string
+  created_at:   string
+}
+
+/* ── Alerts ──────────────────────────────────────────────────────── */
+export type AlertType = 'budget_exceeded' | 'budget_warning' | 'category_exceeded'
+
+export interface Alert {
+  type:          AlertType
+  category_id?:  string
+  category_name?: string
+  limit:         number
+  spent:         number
+  overage:       number
+  message:       string
+}
+
+export interface AlertsResponse {
+  year:   number
+  month:  number
+  alerts: Alert[]
+}
+
+/* ── XLSX Import ─────────────────────────────────────────────────── */
+export interface ImportRowResult {
+  row:          number
+  valid:        boolean
+  error?:       string
+  date?:        string
+  description?: string
+  amount?:      number
+  type?:        string
+  category?:    string
+}
+
+export interface ImportSummary {
+  total:    number
+  imported: number
+  skipped:  number
+  rows:     ImportRowResult[]
+}

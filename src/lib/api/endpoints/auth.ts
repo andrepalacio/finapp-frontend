@@ -13,6 +13,9 @@ export const auth = {
     return apiClient.post<AuthTokens>('/auth/refresh', { refresh_token: refreshToken })
   },
   me() {
-    return apiClient.get<User>('/user/me')
+    return apiClient.get<User>('/user/profile')
+  },
+  profile(data: { name: string; email: string }) {
+    return apiClient.put<User>('/user/profile', data)
   },
 }
