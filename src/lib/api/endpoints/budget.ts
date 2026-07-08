@@ -7,9 +7,9 @@ export const budget = {
     return apiClient.get<Budget>(`/workspaces/${wsId}/budgets/${year}/${month}`)
   },
   upsert(wsId: string, data: UpsertBudgetInput) {
-    return apiClient.post<Budget>(`/workspaces/${wsId}/budgets`, data)
+    return apiClient.put<Budget>(`/workspaces/${wsId}/budgets/${data.year}/${data.month}`, data)
   },
-  delete(wsId: string, id: string) {
-    return apiClient.delete<void>(`/workspaces/${wsId}/budgets/${id}`)
+  delete(wsId: string, year: number, month: number) {
+    return apiClient.delete<void>(`/workspaces/${wsId}/budgets/${year}/${month}`)
   },
 }

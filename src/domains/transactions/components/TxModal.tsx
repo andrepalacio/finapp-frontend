@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect }     from 'react'
-import { useForm }       from 'react-hook-form'
-import { zodResolver }   from '@hookform/resolvers/zod'
+import { useEffect }           from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver }         from '@hookform/resolvers/zod'
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { useCreateTransaction, useDeleteTransaction } from '@/domains/transactio
 import { createTransactionSchema, type CreateTransactionInput } from '@/domains/transactions/schemas'
 import { todayISO }               from '@/lib/format/date'
 import { ApiError }               from '@/lib/api/client'
+import { Select }                 from '@/components/shared/Select'
 import type { Transaction }       from '@/types/domain'
 
 interface Props {
@@ -40,6 +41,7 @@ export function TxModal({ workspaceId, open, onClose, editing }: Props) {
     reset,
     watch,
     setError,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateTransactionInput>({
     resolver:      zodResolver(createTransactionSchema),
@@ -148,15 +150,23 @@ export function TxModal({ workspaceId, open, onClose, editing }: Props) {
               <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
                 Categoria
               </label>
-              <select
-                {...register('category_id')}
-                className="w-full px-3 py-2.5 text-sm bg-bg border border-line rounded-[var(--r-sm)] text-ink focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink/10 transition-colors"
-              >
-                <option value="">Sin categoria</option>
-                {filteredCats.map((c) => (
-                  <option key={c.id} value={c.id}>{c.icon ? `${c.icon} ` : ''}{c.name}</option>
-                ))}
-              </select>
+              <Controller
+                control={control}
+                name="category_id"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    clearable
+                    placeholder="Sin categoria"
+                    className="w-full py-2.5 text-sm"
+                    options={filteredCats.map((c) => ({
+                      value: c.id,
+                      label: `${c.icon ? c.icon + ' ' : ''}${c.name}`,
+                    }))}
+                  />
+                )}
+              />
             </div>
           )}
 

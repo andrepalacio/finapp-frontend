@@ -1,5 +1,5 @@
 import { apiClient }                from '@/lib/api/client'
-import type { Workspace, WorkspaceMember, WorkspaceInvitation, AlertsResponse } from '@/types/domain'
+import type { Workspace, WorkspaceMember, WorkspaceInvitation, AlertsResponse, WorkspaceSummary } from '@/types/domain'
 import type { CreateWorkspaceInput } from '@/domains/workspaces/schemas'
 
 export const workspaces = {
@@ -44,6 +44,10 @@ export const workspaces = {
     accept(token: string) {
       return apiClient.get<WorkspaceInvitation>(`/invitations/accept?token=${token}`)
     },
+  },
+
+  summary(wsId: string, params?: { date_from?: string; date_to?: string }) {
+    return apiClient.get<WorkspaceSummary>(`/workspaces/${wsId}/summary`, params)
   },
 
   alerts(wsId: string) {

@@ -29,7 +29,7 @@ export function useUpsertBudget(workspaceId: string) {
 export function useDeleteBudget(workspaceId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => budget.delete(workspaceId, id),
+    mutationFn: ({ year, month }: { year: number; month: number }) => budget.delete(workspaceId, year, month),
     onSuccess:  () => qc.invalidateQueries({ queryKey: ['budget', workspaceId] }),
   })
 }

@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { workspaces as workspacesApi } from '@/lib/api/endpoints/workspaces'
 import { InviteForm } from './InviteForm'
+import { Select }    from '@/components/shared/Select'
 import type { WorkspaceMember, WorkspaceInvitation } from '@/types/domain'
 
 interface Props {
@@ -86,15 +87,15 @@ export function MemberList({ workspaceId, ownerId, currentUserId, initialMembers
             </div>
 
             {isOwner && m.user_id !== ownerId ? (
-              <select
+              <Select
                 value={m.role}
+                onChange={(v) => updateRole(m.user_id, v)}
                 disabled={loading === m.user_id + '-role'}
-                onChange={(e) => updateRole(m.user_id, e.target.value)}
-                className="text-xs bg-bg border border-line rounded-[var(--r-sm)] px-2 py-1 text-ink focus:outline-none"
-              >
-                <option value="member">Miembro</option>
-                <option value="admin">Admin</option>
-              </select>
+                options={[
+                  { value: 'member', label: 'Miembro' },
+                  { value: 'admin',  label: 'Admin' },
+                ]}
+              />
             ) : (
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${roleBadge[m.role] ?? 'bg-surface-2 text-ink-3'}`}>
                 {roleLabel[m.role] ?? m.role}

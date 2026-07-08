@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
+import { Select } from '@/components/shared/Select'
 import { zodResolver }           from '@hookform/resolvers/zod'
 import {
   Dialog,
@@ -132,23 +133,21 @@ export function BudgetForm({ workspaceId, currency, year, month, existing, onClo
             )}
 
             {/* Add category */}
-            <select
+            <Select
               value=""
-              onChange={(e) => {
-                if (!e.target.value) return
-                append({ category_id: e.target.value, limit_amount: 0 })
+              onChange={(v) => {
+                if (!v) return
+                append({ category_id: v, limit_amount: 0 })
               }}
-              className="w-full px-2.5 py-1.5 text-xs bg-surface-2 border border-line rounded-[var(--r-sm)] text-ink-3 focus:outline-none focus:border-ink transition-colors"
-            >
-              <option value="">+ Agregar categoria...</option>
-              {expenseCats
+              placeholder="+ Agregar categoria..."
+              className="w-full py-1.5"
+              options={expenseCats
                 .filter((c) => !addedIds.has(c.id))
-                .map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.icon ? `${c.icon} ` : ''}{c.name}
-                  </option>
-                ))}
-            </select>
+                .map((c) => ({
+                  value: c.id,
+                  label: `${c.icon ? c.icon + ' ' : ''}${c.name}`,
+                }))}
+            />
           </div>
 
           {errors.root && (

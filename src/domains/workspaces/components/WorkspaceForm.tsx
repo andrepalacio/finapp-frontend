@@ -1,11 +1,12 @@
 'use client'
 
-import { useForm }       from 'react-hook-form'
-import { zodResolver }   from '@hookform/resolvers/zod'
-import { useRouter }     from 'next/navigation'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver }         from '@hookform/resolvers/zod'
+import { useRouter }           from 'next/navigation'
 import { createWorkspaceSchema, type CreateWorkspaceInput } from '@/domains/workspaces/schemas'
 import { useCreateWorkspace } from '@/domains/workspaces/hooks/useWorkspaces'
-import { ApiError }          from '@/lib/api/client'
+import { ApiError }           from '@/lib/api/client'
+import { Select }             from '@/components/shared/Select'
 
 const CURRENCIES = [
   { code: 'COP', label: 'COP — Peso colombiano' },
@@ -29,6 +30,7 @@ export function WorkspaceForm({ onSuccess, submitLabel = 'Crear workspace' }: Pr
     register,
     handleSubmit,
     setError,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceInput>({
     resolver: zodResolver(createWorkspaceSchema),
@@ -73,14 +75,18 @@ export function WorkspaceForm({ onSuccess, submitLabel = 'Crear workspace' }: Pr
         <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
           Moneda principal
         </label>
-        <select
-          {...register('currency')}
-          className="w-full px-3 py-2.5 text-sm bg-surface border border-line rounded-[var(--r-sm)] text-ink focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink/10 transition-colors"
-        >
-          {CURRENCIES.map(({ code, label }) => (
-            <option key={code} value={code}>{label}</option>
-          ))}
-        </select>
+        <Controller
+          control={control}
+          name="currency"
+          render={({ field }) => (
+            <Select
+              value={field.value}
+              onChange={field.onChange}
+              className="w-full py-2.5 text-sm"
+              options={CURRENCIES.map(({ code, label }) => ({ value: code, label }))}
+            />
+          )}
+        />
         {errors.currency && (
           <p className="text-[11px] text-terra mt-1">{errors.currency.message}</p>
         )}

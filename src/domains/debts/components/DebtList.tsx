@@ -4,6 +4,7 @@ import { useState }      from 'react'
 import { useDebts }      from '@/domains/debts/hooks/useDebts'
 import { DebtCard }      from './DebtCard'
 import { DebtForm }      from './DebtForm'
+import type { Debt }     from '@/types/domain'
 
 interface Props {
   workspaceId: string
@@ -19,8 +20,9 @@ function PlusIcon() {
 }
 
 export function DebtList({ workspaceId, currency }: Props) {
-  const [formOpen, setFormOpen] = useState(false)
-  const { data: debts, isLoading } = useDebts(workspaceId)
+  const [formOpen, setFormOpen]       = useState(false)
+  const [editingDebt, setEditingDebt] = useState<Debt | null>(null)
+  const { data: debts, isLoading }    = useDebts(workspaceId)
 
   return (
     <div className="space-y-4">
@@ -56,13 +58,21 @@ export function DebtList({ workspaceId, currency }: Props) {
       )}
 
       {debts?.map((d) => (
-        <DebtCard key={d.id} debt={d} workspaceId={workspaceId} currency={currency} />
+        <DebtCard key={d.id} debt={d} workspaceId={workspaceId} currency={currency} onEdit={setEditingDebt} />
       ))}
 
       {formOpen && (
         <DebtForm
           workspaceId={workspaceId}
           onClose={() => setFormOpen(false)}
+        />
+      )}
+
+      {editingDebt && (
+        <DebtForm
+          workspaceId={workspaceId}
+          editingDebt={editingDebt}
+          onClose={() => setEditingDebt(null)}
         />
       )}
     </div>

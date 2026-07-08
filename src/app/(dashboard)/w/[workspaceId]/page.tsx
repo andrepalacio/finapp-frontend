@@ -1,8 +1,8 @@
 import { Suspense }                    from 'react'
 import { workspaces as workspacesApi } from '@/lib/api/endpoints/workspaces'
-import { transactions }                from '@/lib/api/endpoints/transactions'
 import { SummaryStrip }               from '@/domains/transactions/components/SummaryStrip'
 import Link                           from 'next/link'
+import type { WorkspaceSummary }      from '@/types/domain'
 
 interface Props {
   params: Promise<{ workspaceId: string }>
@@ -23,15 +23,15 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
   const monthEnd   = toISODate(new Date(year, month, 0))
 
   let currency = 'COP'
-  let summary: import('@/types/domain').DailySummary[] = []
+  let summary: WorkspaceSummary = { income_total: 0, income_count: 0, expense_total: 0, expense_count: 0 }
 
   try {
     const [ws, sum] = await Promise.all([
       workspacesApi.get(workspaceId),
-      transactions.summary(workspaceId, { date_from: monthStart, date_to: monthEnd }),
+      workspacesApi.summary(workspaceId, { date_from: monthStart, date_to: monthEnd }),
     ])
     currency = ws.currency
-    summary  = Array.isArray(sum) ? sum : []
+    summary  = sum
   } catch { /* fallback */ }
 
   return (
@@ -44,6 +44,7 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
           month={month}
         />
       </Suspense>
+
 
       {/* Quick nav cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

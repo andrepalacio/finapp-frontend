@@ -1,10 +1,21 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { WorkspaceSwitcher } from '@/domains/workspaces/components/WorkspaceSwitcher'
+import { clearSession } from '@/lib/auth/session'
 import type { Workspace } from '@/types/domain'
+
+function LogoutIcon() {
+  return (
+    <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  )
+}
 
 interface NavItem {
   href: string
@@ -77,6 +88,13 @@ interface SidebarProps {
 
 export function Sidebar({ workspaceId, workspaceName: _workspaceName, userName, workspaces }: SidebarProps) {
   const pathname = usePathname()
+  const router   = useRouter()
+
+  async function handleLogout() {
+    await clearSession()
+    router.push('/login')
+    router.refresh()
+  }
   const base = `/w/${workspaceId}`
 
   const mainItems: NavItem[] = [
@@ -138,12 +156,19 @@ export function Sidebar({ workspaceId, workspaceName: _workspaceName, userName, 
       </nav>
 
       {/* Workspace switcher footer */}
-      <div className="px-3 pb-5">
+      <div className="px-3 pb-5 space-y-1">
         <WorkspaceSwitcher
           currentWorkspaceId={workspaceId}
           workspaces={workspaces}
           userName={userName}
         />
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-2 px-2.5 py-2 rounded-[var(--r-sm)] text-xs text-ink-3 hover:text-terra hover:bg-terra-bg/30 transition-colors"
+        >
+          <LogoutIcon />
+          Cerrar sesion
+        </button>
       </div>
     </aside>
   )

@@ -37,6 +37,18 @@ export function useCreateDebt(workspaceId: string) {
   })
 }
 
+export function useUpdateDebt(workspaceId: string, debtId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateDebtInput) => debts.update(workspaceId, debtId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['debts', workspaceId] })
+      qc.invalidateQueries({ queryKey: ['debts', workspaceId, debtId] })
+      qc.invalidateQueries({ queryKey: ['debts', workspaceId, debtId, 'schedule'] })
+    },
+  })
+}
+
 export function useDeleteDebt(workspaceId: string) {
   const qc = useQueryClient()
   return useMutation({

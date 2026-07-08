@@ -56,6 +56,13 @@ export interface Transaction {
   updated_at:         string
 }
 
+export interface WorkspaceSummary {
+  income_total:  number
+  income_count:  number
+  expense_total: number
+  expense_count: number
+}
+
 export interface DailySummary {
   date:               string
   total_expense:      number
@@ -91,6 +98,8 @@ export interface Budget {
 /* ── Debt ────────────────────────────────────────────────────────── */
 export type RateType = 'effective_annual' | 'nominal_annual' | 'monthly'
 
+export type InsuranceType = '' | 'fixed_monthly' | 'on_balance'
+
 export interface Debt {
   id:                 string
   workspace_id:       string
@@ -102,6 +111,8 @@ export interface Debt {
   installments:       number
   first_payment_date: string
   notes:              string | null
+  insurance_rate:     number
+  insurance_type:     InsuranceType
   created_at:         string
   updated_at:         string
 }
@@ -124,6 +135,8 @@ export interface DebtScheduleInstallment {
   payment:     number
   principal:   number
   interest:    number
+  insurance:   number
+  total:       number
   balance:     number
   status:      InstallmentStatus
   paid_at:     string | null

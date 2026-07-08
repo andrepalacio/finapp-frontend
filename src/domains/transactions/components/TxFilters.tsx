@@ -3,6 +3,8 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useCallback }    from 'react'
 import { useCategories }  from '@/domains/categories/hooks/useCategories'
+import { DatePicker }     from '@/components/shared/DatePicker'
+import { Select }         from '@/components/shared/Select'
 import type { ListTransactionsParams } from '@/lib/api/endpoints/transactions'
 
 interface Props {
@@ -35,43 +37,39 @@ export function TxFilters({ workspaceId }: Props) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Type */}
-      <select
+      <Select
         value={type}
-        onChange={(e) => update('type', e.target.value)}
-        className="px-2.5 py-1.5 text-xs bg-surface border border-line rounded-[var(--r-sm)] text-ink focus:outline-none focus:border-ink transition-colors"
-      >
-        <option value="">Todos los tipos</option>
-        <option value="expense">Gastos</option>
-        <option value="income">Ingresos</option>
-        <option value="transfer">Transferencias</option>
-      </select>
+        onChange={(v) => update('type', v)}
+        clearable
+        placeholder="Todos los tipos"
+        options={[
+          { value: 'expense',  label: 'Gastos' },
+          { value: 'income',   label: 'Ingresos' },
+          { value: 'transfer', label: 'Transferencias' },
+        ]}
+      />
 
       {/* Category */}
-      <select
+      <Select
         value={categoryId}
-        onChange={(e) => update('category_id', e.target.value)}
-        className="px-2.5 py-1.5 text-xs bg-surface border border-line rounded-[var(--r-sm)] text-ink focus:outline-none focus:border-ink transition-colors"
-      >
-        <option value="">Todas las categorias</option>
-        {cats?.map((c) => (
-          <option key={c.id} value={c.id}>{c.icon ? `${c.icon} ` : ''}{c.name}</option>
-        ))}
-      </select>
+        onChange={(v) => update('category_id', v)}
+        clearable
+        placeholder="Todas las categorias"
+        options={cats?.map((c) => ({ value: c.id, label: `${c.icon ? c.icon + ' ' : ''}${c.name}` })) ?? []}
+      />
 
       {/* Date from */}
-      <input
-        type="date"
+      <DatePicker
         value={dateFrom}
-        onChange={(e) => update('date_from', e.target.value)}
-        className="px-2.5 py-1.5 text-xs bg-surface border border-line rounded-[var(--r-sm)] text-ink focus:outline-none focus:border-ink transition-colors"
+        onChange={(v) => update('date_from', v)}
+        placeholder="Desde"
       />
 
       {/* Date to */}
-      <input
-        type="date"
+      <DatePicker
         value={dateTo}
-        onChange={(e) => update('date_to', e.target.value)}
-        className="px-2.5 py-1.5 text-xs bg-surface border border-line rounded-[var(--r-sm)] text-ink focus:outline-none focus:border-ink transition-colors"
+        onChange={(v) => update('date_to', v)}
+        placeholder="Hasta"
       />
 
       {/* Clear */}

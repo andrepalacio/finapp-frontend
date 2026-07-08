@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { workspaces as workspacesApi } from '@/lib/api/endpoints/workspaces'
+import { Select } from '@/components/shared/Select'
 
 interface Props {
   workspaceId: string
@@ -43,14 +44,14 @@ export function InviteForm({ workspaceId, onInvited }: Props) {
           required
           className="flex-1 min-w-0 px-3 py-2 text-sm bg-bg border border-line rounded-[var(--r-sm)] text-ink placeholder:text-ink-4 focus:outline-none focus:ring-1 focus:ring-ink/20"
         />
-        <select
+        <Select
           value={role}
-          onChange={(e) => setRole(e.target.value as 'member' | 'admin')}
-          className="px-2 py-2 text-sm bg-bg border border-line rounded-[var(--r-sm)] text-ink focus:outline-none"
-        >
-          <option value="member">Miembro</option>
-          <option value="admin">Admin</option>
-        </select>
+          onChange={(v) => setRole(v as 'member' | 'admin')}
+          options={[
+            { value: 'member', label: 'Miembro' },
+            { value: 'admin',  label: 'Admin' },
+          ]}
+        />
         <button
           type="submit"
           disabled={loading}

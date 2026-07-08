@@ -35,8 +35,9 @@ export function ScheduleTable({ workspaceId, debtId, currency }: Props) {
 
   if (!schedule?.length) return null
 
-  const paid    = schedule.filter((r) => r.status === 'paid').length
-  const total   = schedule.length
+  const paid         = schedule.filter((r) => r.status === 'paid').length
+  const totalRows    = schedule.length
+  const hasInsurance = schedule.some((r) => (r.insurance ?? 0) > 0)
 
   return (
     <>
@@ -45,7 +46,7 @@ export function ScheduleTable({ workspaceId, debtId, currency }: Props) {
           <p className="text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3">
             Tabla de amortizacion
           </p>
-          <span className="text-xs text-ink-3">{paid}/{total} pagadas</span>
+          <span className="text-xs text-ink-3">{paid}/{totalRows} pagadas</span>
         </div>
 
         <div className="overflow-x-auto">
@@ -57,6 +58,8 @@ export function ScheduleTable({ workspaceId, debtId, currency }: Props) {
                 <th className="px-4 py-2.5 text-right font-medium">Cuota</th>
                 <th className="px-4 py-2.5 text-right font-medium">Capital</th>
                 <th className="px-4 py-2.5 text-right font-medium">Interes</th>
+                {hasInsurance && <th className="px-4 py-2.5 text-right font-medium">Seguro</th>}
+                {hasInsurance && <th className="px-4 py-2.5 text-right font-medium">Total</th>}
                 <th className="px-4 py-2.5 text-right font-medium">Saldo</th>
                 <th className="px-4 py-2.5 text-center font-medium">Estado</th>
               </tr>
@@ -77,6 +80,8 @@ export function ScheduleTable({ workspaceId, debtId, currency }: Props) {
                   <td className="px-4 py-2.5 text-right tabular-nums text-ink">{formatCurrency(row.payment, currency)}</td>
                   <td className="px-4 py-2.5 text-right tabular-nums text-ink-3">{formatCurrency(row.principal, currency)}</td>
                   <td className="px-4 py-2.5 text-right tabular-nums text-terra">{formatCurrency(row.interest, currency)}</td>
+                  {hasInsurance && <td className="px-4 py-2.5 text-right tabular-nums text-ink-3">{formatCurrency(row.insurance ?? 0, currency)}</td>}
+                  {hasInsurance && <td className="px-4 py-2.5 text-right tabular-nums font-medium text-ink">{formatCurrency(row.total ?? row.payment, currency)}</td>}
                   <td className="px-4 py-2.5 text-right tabular-nums text-ink-3">{formatCurrency(row.balance, currency)}</td>
                   <td className="px-4 py-2.5 text-center">
                     {row.status === 'paid' ? (

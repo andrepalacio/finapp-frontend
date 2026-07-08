@@ -1,42 +1,78 @@
 'use client'
 
-import { useForm }     from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect }                        from 'react'
+import { useForm, Controller }               from 'react-hook-form'
+import { zodResolver }         from '@hookform/resolvers/zod'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { useCreateDebt }   from '@/domains/debts/hooks/useDebts'
+import { useCreateDebt, useUpdateDebt } from '@/domains/debts/hooks/useDebts'
 import { createDebtSchema, type CreateDebtInput } from '@/domains/debts/schemas'
 import { todayISO }        from '@/lib/format/date'
 import { ApiError }        from '@/lib/api/client'
+import { Select }          from '@/components/shared/Select'
+import type { Debt }       from '@/types/domain'
 
 interface Props {
-  workspaceId: string
-  onClose:     () => void
+  workspaceId:    string
+  onClose:        () => void
+  editingDebt?:   Debt
 }
 
-export function DebtForm({ workspaceId, onClose }: Props) {
+function debtToFormValues(debt: Debt): CreateDebtInput {
+  return {
+    name:               debt.name,
+    lender:             debt.lender ?? '',
+    principal:          debt.principal,
+    rate:               debt.rate,
+    rate_type:          debt.rate_type,
+    installments:       debt.installments,
+    first_payment_date: debt.first_payment_date.slice(0, 10),
+    notes:              debt.notes ?? '',
+    insurance_rate:     debt.insurance_rate ?? 0,
+    insurance_type:     debt.insurance_type ?? '',
+  }
+}
+
+export function DebtForm({ workspaceId, onClose, editingDebt }: Props) {
+  const isEdit = !!editingDebt
   const create = useCreateDebt(workspaceId)
+  const update = useUpdateDebt(workspaceId, editingDebt?.id ?? '')
 
   const {
     register,
     handleSubmit,
     setError,
+    setValue,
+    control,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CreateDebtInput>({
     resolver:      zodResolver(createDebtSchema),
-    defaultValues: { rate_type: 'effective_annual', first_payment_date: todayISO() },
+    defaultValues: isEdit
+      ? debtToFormValues(editingDebt)
+      : { rate_type: 'effective_annual', first_payment_date: todayISO(), insurance_rate: 0, insurance_type: '' },
   })
+
+  const insuranceType = watch('insurance_type')
+
+  useEffect(() => {
+    if (!insuranceType) setValue('insurance_rate', 0)
+  }, [insuranceType, setValue])
 
   async function onSubmit(data: CreateDebtInput) {
     try {
-      await create.mutateAsync(data)
+      if (isEdit) {
+        await update.mutateAsync(data)
+      } else {
+        await create.mutateAsync(data)
+      }
       onClose()
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Error al crear deuda'
+      const msg = err instanceof ApiError ? err.message : isEdit ? 'Error al actualizar deuda' : 'Error al crear deuda'
       setError('root', { message: msg })
     }
   }
@@ -55,7 +91,9 @@ export function DebtForm({ workspaceId, onClose }: Props) {
     <Dialog open onOpenChange={(v) => { if (!v) onClose() }}>
       <DialogContent className="sm:max-w-md bg-surface border-line max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif text-xl text-ink">Nueva deuda</DialogTitle>
+          <DialogTitle className="font-serif text-xl text-ink">
+            {isEdit ? 'Editar deuda' : 'Nueva deuda'}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 mt-2">
@@ -68,16 +106,27 @@ export function DebtForm({ workspaceId, onClose }: Props) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {field('Tasa',
-              <input type="number" step="0.0001" min="0" placeholder="0.12" {...register('rate', { valueAsNumber: true })} className={inputCls} />,
+            {field('Tasa (%)',
+              <input type="number" step="0.0001" min="0" placeholder="25.59" {...register('rate', { valueAsNumber: true })} className={inputCls} />,
               errors.rate?.message
             )}
             {field('Tipo de tasa',
-              <select {...register('rate_type')} className={inputCls}>
-                <option value="effective_annual">EA anual</option>
-                <option value="nominal_annual">NMV anual</option>
-                <option value="monthly">MV mensual</option>
-              </select>
+              <Controller
+                control={control}
+                name="rate_type"
+                render={({ field: f }) => (
+                  <Select
+                    value={f.value}
+                    onChange={f.onChange}
+                    className="w-full py-2.5 text-sm"
+                    options={[
+                      { value: 'effective_annual', label: 'EA anual' },
+                      { value: 'nominal_annual',   label: 'NMV anual' },
+                      { value: 'monthly',          label: 'MV mensual' },
+                    ]}
+                  />
+                )}
+              />
             )}
           </div>
 
@@ -85,6 +134,45 @@ export function DebtForm({ workspaceId, onClose }: Props) {
             <input type="date" {...register('first_payment_date')} className={inputCls} />,
             errors.first_payment_date?.message
           )}
+
+          <div className="border border-line rounded-[var(--r-sm)] p-3 space-y-3">
+            <p className="text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3">Seguro (opcional)</p>
+            <div className="grid grid-cols-2 gap-3">
+              {field('Tipo de seguro',
+                <Controller
+                  control={control}
+                  name="insurance_type"
+                  render={({ field: f }) => (
+                    <Select
+                      value={f.value}
+                      onChange={f.onChange}
+                      className="w-full py-2.5 text-sm"
+                      options={[
+                        { value: '',              label: 'Sin seguro' },
+                        { value: 'fixed_monthly', label: 'Fijo mensual' },
+                        { value: 'on_balance',    label: '% sobre saldo' },
+                      ]}
+                    />
+                  )}
+                />
+              )}
+              {insuranceType
+              ? field(
+                  insuranceType === 'on_balance' ? 'Tasa seguro (%)' : 'Valor seguro',
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder={insuranceType === 'on_balance' ? '0.3' : '45000'}
+                    {...register('insurance_rate', { valueAsNumber: true })}
+                    className={inputCls}
+                  />,
+                  errors.insurance_rate?.message
+                )
+              : <div />
+            }
+            </div>
+          </div>
 
           {field('Notas',
             <textarea rows={2} {...register('notes')} className={`${inputCls} resize-none`} />
@@ -101,7 +189,9 @@ export function DebtForm({ workspaceId, onClose }: Props) {
               Cancelar
             </button>
             <button type="submit" disabled={isSubmitting} className="flex-1 py-2.5 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 active:scale-[0.99] transition-all disabled:opacity-60">
-              {isSubmitting ? 'Creando...' : 'Crear deuda'}
+              {isSubmitting
+                ? (isEdit ? 'Guardando...' : 'Creando...')
+                : (isEdit ? 'Guardar cambios' : 'Crear deuda')}
             </button>
           </div>
         </form>
