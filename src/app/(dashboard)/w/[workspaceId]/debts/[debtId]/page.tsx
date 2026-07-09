@@ -17,11 +17,11 @@ export default async function DebtDetailPage({ params }: Props) {
   let principal = 0
 
   try {
-    const [ws, debt] = await Promise.all([
-      workspacesApi.get(workspaceId),
+    const [list, debt] = await Promise.all([
+      workspacesApi.list(),
       debtsApi.get(workspaceId, debtId),
     ])
-    currency  = ws.currency
+    currency  = list.find((w) => w.id === workspaceId)?.currency ?? currency
     debtName  = debt.name
     principal = debt.principal
   } catch { /* fallback */ }

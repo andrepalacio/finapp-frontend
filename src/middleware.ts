@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ACCESS_TOKEN_COOKIE } from '@/lib/auth/constants'
 
 const PUBLIC_PATHS = ['/login', '/register']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const token = request.cookies.get('access_token')?.value
+  const token = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value
 
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
 

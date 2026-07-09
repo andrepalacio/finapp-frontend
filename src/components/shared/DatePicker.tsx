@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { formatDate } from '@/lib/format/date'
 
 const DAYS   = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do']
 const MONTHS = [
@@ -64,9 +65,7 @@ export function DatePicker({ value, onChange, placeholder = 'Seleccionar fecha',
     onChange('')
   }
 
-  const label = selected
-    ? selected.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
-    : placeholder
+  const label = selected ? formatDate(value) : placeholder
 
   const cells = Array.from({ length: firstWeekday + daysInMonth }, (_, i) =>
     i < firstWeekday ? null : i - firstWeekday + 1

@@ -102,6 +102,7 @@ export function ScheduleTable({ workspaceId, debtId, currency }: Props) {
           workspaceId={workspaceId}
           debtId={debtId}
           installment={paying}
+          currency={currency}
           onClose={() => setPaying(null)}
         />
       )}

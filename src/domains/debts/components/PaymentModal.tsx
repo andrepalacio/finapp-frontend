@@ -26,10 +26,11 @@ interface Props {
   workspaceId:  string
   debtId:       string
   installment:  DebtScheduleInstallment
+  currency:     string
   onClose:      () => void
 }
 
-export function PaymentModal({ workspaceId, debtId, installment, onClose }: Props) {
+export function PaymentModal({ workspaceId, debtId, installment, currency, onClose }: Props) {
   const create = useCreatePayment(workspaceId, debtId)
 
   const {
@@ -66,7 +67,7 @@ export function PaymentModal({ workspaceId, debtId, installment, onClose }: Prop
         <div className="bg-surface-2 rounded-[var(--r-sm)] px-3 py-2.5 mb-1">
           <p className="text-[11px] uppercase tracking-[0.08em] text-ink-3 font-medium">Cuota #{installment.period}</p>
           <p className="text-sm text-ink tabular-nums mt-0.5">
-            Valor esperado: <strong>{formatCurrency(installment.payment, 'COP')}</strong>
+            Valor esperado: <strong>{formatCurrency(installment.payment, currency)}</strong>
           </p>
         </div>
 

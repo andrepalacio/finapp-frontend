@@ -10,8 +10,8 @@ export default async function SavingsPage({ params }: Props) {
 
   let currency = 'COP'
   try {
-    const ws = await workspacesApi.get(workspaceId)
-    currency = ws.currency
+    const list = await workspacesApi.list()
+    currency = list.find((w) => w.id === workspaceId)?.currency ?? currency
   } catch { /* fallback */ }
 
   return <GoalList workspaceId={workspaceId} currency={currency} />

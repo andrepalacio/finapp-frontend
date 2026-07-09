@@ -3,8 +3,6 @@ import type { Transaction, DailySummary, ImportSummary }  from '@/types/domain'
 import type { CursorResponse }                            from '@/types/api'
 import type { CreateTransactionInput }                    from '@/domains/transactions/schemas'
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1'
-
 export interface ListTransactionsParams {
   limit?:       number
   cursor?:      string
@@ -36,18 +34,13 @@ export const transactions = {
 
   import: {
     templateUrl(wsId: string) {
-      return `${BASE_URL}/workspaces/${wsId}/transactions/import/template`
+      return `/api/proxy/workspaces/${wsId}/transactions/import/template`
     },
-    async upload(wsId: string, file: File, dryRun = false): Promise<ImportSummary> {
+    upload(wsId: string, file: File, dryRun = false): Promise<ImportSummary> {
       const form = new FormData()
       form.append('file', file)
-      const url = `${BASE_URL}/workspaces/${wsId}/transactions/import${dryRun ? '?dry_run=true' : ''}`
-      const res = await fetch(url, { method: 'POST', body: form, credentials: 'include' })
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error((err as { error?: string }).error ?? 'Error al importar')
-      }
-      return res.json() as Promise<ImportSummary>
+      const path = `/workspaces/${wsId}/transactions/import${dryRun ? '?dry_run=true' : ''}`
+      return apiClient.postForm<ImportSummary>(path, form)
     },
   },
 }

@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { workspaces as workspacesApi } from '@/lib/api/endpoints/workspaces'
 import { InviteForm } from './InviteForm'
 import { Select }    from '@/components/shared/Select'
+import { formatDate } from '@/lib/format/date'
 import type { WorkspaceMember, WorkspaceInvitation } from '@/types/domain'
 
 interface Props {
@@ -123,7 +124,7 @@ export function MemberList({ workspaceId, ownerId, currentUserId, initialMembers
             <div key={inv.id} className="bg-surface rounded-[var(--r-lg)] border border-dashed border-line px-4 py-3 flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-ink truncate">{inv.email}</p>
-                <p className="text-xs text-ink-4">Expira {new Date(inv.expires_at).toLocaleDateString('es-CO')}</p>
+                <p className="text-xs text-ink-4">Expira {formatDate(inv.expires_at)}</p>
               </div>
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${roleBadge[inv.role] ?? 'bg-surface-2 text-ink-3'}`}>
                 {roleLabel[inv.role] ?? inv.role}

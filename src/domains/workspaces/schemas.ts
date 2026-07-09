@@ -6,3 +6,10 @@ export const createWorkspaceSchema = z.object({
 })
 
 export type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema>
+
+export const inviteMemberSchema = z.object({
+  email: z.string().email('Email invalido'),
+  role:  z.enum(['member', 'admin']),
+})
+
+export type InviteMemberInput = z.infer<typeof inviteMemberSchema>

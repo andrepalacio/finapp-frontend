@@ -7,10 +7,11 @@
 
 ## Propósito de este servicio
 
-UI de FinApp construida con Next.js 14 (App Router). Consume la API REST del backend Go. No tiene lógica de negocio propia — toda la lógica vive en el backend.
+UI de FinApp construida con Next.js 15 (App Router). Consume la API REST del backend Go a través de un proxy same-origin (`/api/proxy/*`). No tiene lógica de negocio propia — toda la lógica vive en el backend.
 
-**Puerto:** 3000 (desarrollo) → 80/443 (producción via Nginx)
-**Framework:** Next.js 14 con App Router (no Pages Router)
+**Puerto:** 3000 (desarrollo) → 80/443 (producción via Railway, Dockerfile multi-stage con `output: 'standalone'`)
+**Framework:** Next.js 15.5.18 con App Router (no Pages Router)
+**React:** 18.3.1 (Next 15.5 soporta React 18.3 sin forzar React 19)
 
 ---
 
@@ -24,6 +25,8 @@ UI de FinApp construida con Next.js 14 (App Router). Consume la API REST del bac
 | react-hook-form + zod | Formularios y validación |
 | Recharts | Gráficas financieras |
 | Inter + Instrument Serif | Tipografía (Google Fonts) |
+| Vitest + Testing Library | Tests unitarios (`lib/format`, `domains/*/schemas.ts`, `lib/api/client.ts`) |
+| Playwright | Tests e2e (`e2e/`) |
 
 ---
 
@@ -74,85 +77,69 @@ Definidos en `globals.css`, consumidos como CSS custom properties.
 
 ---
 
-## Estructura de carpetas — Domain-driven
+## Estructura de carpetas — Domain-driven (refleja el árbol real)
 
 ```
 src/
-├── app/
-│   ├── (auth)/                        # Rutas públicas
-│   │   ├── login/page.tsx
-│   │   └── register/page.tsx
-│   ├── (dashboard)/                   # Rutas protegidas — requieren auth
-│   │   ├── layout.tsx                 # Shell: sidebar + topbar
-│   │   ├── page.tsx                   # Redirect a workspace activo
-│   │   └── w/
-│   │       └── [workspaceId]/         # Contexto de workspace
-│   │           ├── layout.tsx         # Workspace provider
-│   │           ├── page.tsx           # Dashboard / Inicio
-│   │           ├── transactions/
-│   │           │   └── page.tsx
-│   │           ├── budget/
-│   │           │   └── page.tsx
-│   │           ├── debts/
-│   │           │   ├── page.tsx
-│   │           │   └── [debtId]/page.tsx
-│   │           └── savings/
-│   │               ├── page.tsx
-│   │               └── [goalId]/page.tsx
-│   ├── settings/page.tsx              # Settings de usuario (fuera de workspace)
-│   ├── layout.tsx                     # Root layout (providers)
-│   └── globals.css                    # Tokens + base styles
+├── middleware.ts                      # Protege rutas /w/* — redirige a /login sin access_token
 │
-├── domains/                           # Módulos por dominio
-│   ├── auth/
-│   │   ├── components/                # LoginForm, RegisterForm
-│   │   ├── hooks/                     # useLogin, useRegister, useLogout
-│   │   └── schemas.ts                 # Zod: loginSchema, registerSchema
-│   ├── transactions/
-│   │   ├── components/                # TxList, TxCard, TxModal, TxDetail, TxFilters
-│   │   ├── hooks/                     # useTransactions, useCreateTx, useDeleteTx
-│   │   └── schemas.ts
-│   ├── categories/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   └── schemas.ts
-│   ├── budget/
-│   │   ├── components/                # BudgetCard, CategoryProgress, BudgetForm
-│   │   ├── hooks/
-│   │   └── schemas.ts
-│   ├── debts/
-│   │   ├── components/                # DebtList, DebtCard, ScheduleTable, PaymentModal
-│   │   ├── hooks/
-│   │   └── schemas.ts
-│   ├── savings/
-│   │   ├── components/                # GoalCard, ProgressRing, ContributionForm
-│   │   ├── hooks/
-│   │   └── schemas.ts
-│   └── workspaces/
-│       ├── components/                # WorkspaceSwitcher, WorkspaceForm
-│       ├── hooks/                     # useWorkspaces, useCurrentWorkspace
-│       └── schemas.ts
+├── app/
+│   ├── (auth)/                        # Rutas públicas: login, register
+│   ├── (dashboard)/
+│   │   ├── layout.tsx                 # Shell: sidebar + topbar, fetch de workspaces + user
+│   │   ├── page.tsx                   # Redirect a workspace activo
+│   │   └── w/[workspaceId]/
+│   │       ├── layout.tsx
+│   │       ├── page.tsx
+│   │       ├── transactions/page.tsx
+│   │       ├── budget/page.tsx
+│   │       ├── debts/{page.tsx,[debtId]/page.tsx}
+│   │       └── savings/{page.tsx,[goalId]/page.tsx}
+│   ├── invitations/accept/page.tsx
+│   ├── settings/page.tsx
+│   ├── api/
+│   │   ├── proxy/[...path]/route.ts   # Único boundary hacia el backend real — inyecta
+│   │   │                              # Authorization desde la cookie, pasa binarios (xlsx) sin
+│   │   │                              # forzar JSON, único punto donde el browser puede llamar
+│   │   └── auth/refresh/route.ts      # Rota access+refresh token, single-use en backend
+│   ├── layout.tsx
+│   └── globals.css
+│
+├── domains/                           # Módulos por dominio — estructura real
+│   ├── auth/          {components: LoginForm, RegisterForm, LogoutButton; hooks: useAuth; schemas.ts}
+│   ├── workspaces/     {components: WorkspaceCard, WorkspaceForm, WorkspaceSwitcher, InviteForm, MemberList, ProfileForm; hooks: useWorkspaces; schemas.ts}
+│   ├── transactions/   {components: TxList, TxCard, TxModal, TxFilters, TxPageClient, SummaryStrip, XlsxImport; hooks: useTransactions; schemas.ts}
+│   ├── categories/     {hooks: useCategories; schemas.ts — sin components propios, se reusa en otros domains}
+│   ├── budget/         {components: BudgetCard, BudgetForm, CategoryProgress; hooks: useBudget; schemas.ts}
+│   ├── debts/          {components: DebtList, DebtCard, DebtForm, ScheduleTable, PaymentModal; hooks: useDebts; schemas.ts}
+│   └── savings/        {components: GoalList, GoalCard, GoalForm, ContributionList, ContributionForm, ProgressRing; hooks: useSavings; schemas.ts}
 │
 ├── components/
 │   ├── ui/                            # shadcn/ui (no editar manualmente)
 │   ├── shell/                         # Sidebar, Topbar, MobileNav
-│   └── shared/                        # AmountDisplay, DateLabel, EmptyState, etc.
+│   └── shared/                        # AmountDisplay, DatePicker, Select, Providers
 │
 ├── lib/
 │   ├── api/
-│   │   ├── client.ts                  # fetchWithAuth — cliente base
-│   │   └── endpoints/                 # Por dominio: transactions.ts, debts.ts, etc.
+│   │   ├── client.ts                  # apiClient.{get,post,put,delete,postForm} + class ApiError
+│   │   │                              # Cliente → /api/proxy (same-origin). Servidor → backend directo.
+│   │   │                              # Dedup de refresh concurrente (mutex) en 401.
+│   │   ├── endpoints/                 # Uno por dominio: transactions.ts, workspaces.ts, etc.
+│   │   └── index.ts                   # Re-exporta todos los endpoints
 │   ├── auth/
-│   │   ├── session.ts                 # Read/write httpOnly cookies (server actions)
-│   │   └── middleware.ts              # Next.js middleware — rutas protegidas
+│   │   ├── session.ts                 # 'use server' — setSession/clearSession/getAccessToken/
+│   │   │                              # getRefreshToken/requireAuth, cookies httpOnly
+│   │   └── constants.ts               # Nombre/opciones de cookie compartidos (session.ts,
+│   │                                  # refresh/route.ts, middleware.ts)
 │   ├── format/
-│   │   ├── currency.ts                # formatCurrency(amount, currency) — multi-currency
-│   │   └── date.ts                    # formatDate, formatRelative
-│   └── query-client.ts                # TanStack Query client singleton
+│   │   ├── currency.ts                # formatCurrency, formatAmount — multi-currency
+│   │   └── date.ts                    # formatDate, formatDateShort, formatMonthYear, toISODate
+│   ├── query-client.ts                # QueryClient: nuevo por request en servidor, singleton en cliente
+│   └── utils.ts                       # cn() — clsx + tailwind-merge
 │
 └── types/
-    ├── api.ts                         # ApiError, PaginatedResponse
-    └── domain.ts                      # Debt, Transaction, Budget, SavingsGoal, etc.
+    ├── api.ts                         # PaginatedResponse, CursorResponse
+    └── domain.ts                      # User, Workspace, Transaction, Debt, SavingsGoal, etc.
 ```
 
 ---
@@ -162,6 +149,7 @@ src/
 ```
 /login                              # Pública
 /register                           # Pública
+/invitations/accept                 # Pública (acepta invitación por token)
 /w/[workspaceId]                    # Dashboard workspace
 /w/[workspaceId]/transactions       # Transacciones
 /w/[workspaceId]/budget             # Presupuesto mes actual
@@ -183,7 +171,7 @@ src/
 export function useTransactions(workspaceId: string, params?: ListParams) {
   return useQuery({
     queryKey: ['transactions', workspaceId, params],
-    queryFn: () => api.transactions.list(workspaceId, params),
+    queryFn: () => transactions.list(workspaceId, params),
   })
 }
 
@@ -191,7 +179,7 @@ export function useCreateTransaction(workspaceId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateTransactionInput) =>
-      api.transactions.create(workspaceId, data),
+      transactions.create(workspaceId, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['transactions', workspaceId] }),
   })
 }
@@ -201,28 +189,44 @@ export function useCreateTransaction(workspaceId: string) {
 
 ```typescript
 // lib/api/client.ts — SIEMPRE usar este cliente, nunca fetch() directo
-async function fetchWithAuth<T>(method: string, path: string, body?: unknown): Promise<T>
+// (única excepción: los route handlers en app/api/proxy y app/api/auth/refresh,
+// que SON el boundary autorizado hacia el backend real)
+export const apiClient = {
+  get:      <T>(path: string, query?: Record<string, unknown>) => Promise<T>,
+  post:     <T>(path: string, body: unknown) => Promise<T>,
+  put:      <T>(path: string, body: unknown) => Promise<T>,
+  delete:   <T = void>(path: string) => Promise<T>,
+  postForm: <T>(path: string, form: FormData) => Promise<T>,  // uploads multipart
+}
+export class ApiError extends Error { code: string; status: number }
 
 // lib/api/endpoints/transactions.ts
 export const transactions = {
   list: (wsId: string, p?: ListParams) =>
-    apiClient.get<PaginatedResponse<Transaction>>(`/workspaces/${wsId}/transactions`, p),
+    apiClient.get<CursorResponse<Transaction>>(`/workspaces/${wsId}/transactions`, p),
   create: (wsId: string, data: CreateTransactionInput) =>
     apiClient.post<Transaction>(`/workspaces/${wsId}/transactions`, data),
   // ...
 }
 ```
 
+Desde el browser, `apiClient` siempre pasa por `/api/proxy/*` (same-origin, sin CORS) — el route handler ahí lee la cookie `access_token` e inyecta el header `Authorization` antes de reenviar al backend real. Desde un Server Component, pega directo a `NEXT_PUBLIC_API_URL`.
+
 ### Auth — httpOnly cookies
 
 ```typescript
-// lib/auth/session.ts (Server Actions)
+// lib/auth/session.ts ('use server')
 // Tokens se guardan ÚNICAMENTE en httpOnly cookies — nunca localStorage
-export async function setSession(tokens: { access: string; refresh: string }): Promise<void>
-export async function getSession(): Promise<Session | null>
+export async function setSession(tokens: { access_token: string; refresh_token: string }): Promise<void>
 export async function clearSession(): Promise<void>
+export async function getAccessToken(): Promise<string | null>
+export async function getRefreshToken(): Promise<string | null>
+export async function requireAuth(): Promise<string>  // redirect('/login') si no hay token
 
-// lib/auth/middleware.ts — protege todas las rutas bajo /w/* y /settings
+// lib/auth/constants.ts — nombre/opciones de cookie compartidos entre
+// session.ts, app/api/auth/refresh/route.ts y middleware.ts
+
+// src/middleware.ts (raíz de src/, runtime Edge) — protege todas las rutas bajo /w/*
 ```
 
 ### Formularios
@@ -240,22 +244,26 @@ const form = useForm<CreateTransactionInput>({
 // Server Component por defecto — sin 'use client'
 // Agregar 'use client' SOLO para: useState/useEffect, event handlers, browser APIs, TanStack Query hooks
 
-// ✅ Página como Server Component — prefetch en servidor
-export default async function TransactionsPage({ params }) {
-  return (
-    <HydrationBoundary state={await prefetchTransactions(params.workspaceId)}>
-      <TransactionList />
-    </HydrationBoundary>
-  )
+// ✅ Página como Server Component — fetch en servidor, pasa props al Client Component
+export default async function DebtsPage({ params }: Props) {
+  const { workspaceId } = await params
+  let currency = 'COP'
+  try {
+    const list = await workspacesApi.list()   // memoizado por Next dentro del mismo request
+    currency = list.find((w) => w.id === workspaceId)?.currency ?? currency
+  } catch { /* fallback */ }
+  return <DebtList workspaceId={workspaceId} currency={currency} />
 }
 
-// ✅ List como Client Component — usa useQuery
+// ✅ Componente interactivo como Client Component — usa useQuery
 'use client'
-export function TransactionList() {
-  const { data } = useTransactions(useWorkspaceId())
+export function DebtList({ workspaceId, currency }: Props) {
+  const { data: debts } = useDebts(workspaceId)
   // ...
 }
 ```
+
+No hay Context de workspace ni patrón `HydrationBoundary`/prefetch — los datos de workspace se resuelven en cada Server Component page vía `workspacesApi.list()`, que Next.js dedupea automáticamente dentro del mismo request (mismo URL+opciones de `fetch`).
 
 ### Formateo de moneda (multi-currency)
 
@@ -278,7 +286,7 @@ export function formatCurrency(amount: number, currency: string): string {
 ## Reglas — Claude Code debe respetar siempre
 
 1. **Sin lógica de negocio** — solo presentación y llamadas a API
-2. **Sin fetch() directo** — siempre `lib/api/client.ts`
+2. **Sin fetch() directo** — siempre `lib/api/client.ts` (excepción: los 2 route handlers en `app/api/proxy` y `app/api/auth/refresh`, que son el boundary)
 3. **Sin tokens en localStorage** — httpOnly cookies via Server Actions
 4. **Sin `any` sin narrowing** — tipar todas las respuestas de API
 5. **Formularios: react-hook-form + zod** — nunca useState para form state
@@ -294,8 +302,9 @@ export function formatCurrency(amount: number, currency: string): string {
 ```env
 # .env.local
 NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
-SESSION_SECRET=...   # mínimo 32 chars — para firmar cookies
 ```
+
+**Importante:** `NEXT_PUBLIC_*` se hornea en build time en TODO código compilado por webpack (no solo el bundle de cliente — también los route handlers server-side como `/api/proxy`). Un `docker run -e NEXT_PUBLIC_API_URL=...` en runtime no tiene efecto si no se pasó como build-arg. Railway inyecta las variables del dashboard como build-args automáticamente para builds con Dockerfile; fuera de Railway (build local, otro CI) hay que pasarlo explícito: `docker build --build-arg NEXT_PUBLIC_API_URL=...`.
 
 ---
 
@@ -304,6 +313,9 @@ SESSION_SECRET=...   # mínimo 32 chars — para firmar cookies
 ```bash
 npm run dev          # Dev server con hot reload
 npm run build        # Build de producción
-npm run lint         # ESLint
+npm run lint         # ESLint (next lint — deprecado en Next 16, migrar a ESLint CLI cuando se actualice)
 npm run type-check   # tsc --noEmit
+npm run test          # Vitest (unit) — lib/format, domains/*/schemas.ts, lib/api/client.ts
+npm run test:watch    # Vitest en modo watch
+npm run e2e           # Playwright (requiere backend real corriendo + usuario semilla test@finapp.dev)
 ```

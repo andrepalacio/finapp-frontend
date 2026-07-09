@@ -26,11 +26,11 @@ export default async function WorkspaceDashboardPage({ params }: Props) {
   let summary: WorkspaceSummary = { income_total: 0, income_count: 0, expense_total: 0, expense_count: 0 }
 
   try {
-    const [ws, sum] = await Promise.all([
-      workspacesApi.get(workspaceId),
+    const [list, sum] = await Promise.all([
+      workspacesApi.list(),
       workspacesApi.summary(workspaceId, { date_from: monthStart, date_to: monthEnd }),
     ])
-    currency = ws.currency
+    currency = list.find((w) => w.id === workspaceId)?.currency ?? currency
     summary  = sum
   } catch { /* fallback */ }
 

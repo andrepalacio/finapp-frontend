@@ -1,7 +1,14 @@
 const LOCALE = 'es-CO'
 
+// Bare YYYY-MM-DD parses as UTC midnight per spec, which shifts a day
+// backwards once formatted in a timezone behind UTC (e.g. America/Bogota).
+// Force local-time parsing instead.
+function parseLocalISO(iso: string): Date {
+  return new Date(`${iso}T00:00:00`)
+}
+
 export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(LOCALE, {
+  return parseLocalISO(iso).toLocaleDateString(LOCALE, {
     day:   '2-digit',
     month: 'short',
     year:  'numeric',
@@ -9,7 +16,7 @@ export function formatDate(iso: string): string {
 }
 
 export function formatDateShort(iso: string): string {
-  return new Date(iso).toLocaleDateString(LOCALE, {
+  return parseLocalISO(iso).toLocaleDateString(LOCALE, {
     day:   '2-digit',
     month: 'short',
   })

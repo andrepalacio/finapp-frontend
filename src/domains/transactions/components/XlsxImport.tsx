@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback } from 'react'
 import { transactions as txApi } from '@/lib/api/endpoints/transactions'
+import { ApiError } from '@/lib/api/client'
 import type { ImportRowResult, ImportSummary } from '@/types/domain'
 
 interface Props {
@@ -40,7 +41,7 @@ export function XlsxImport({ workspaceId, onImported }: Props) {
       const summary = await txApi.import.upload(workspaceId, f, true)
       setPreview(summary)
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al leer el archivo')
+      setError(e instanceof ApiError ? e.message : 'Error al leer el archivo')
       setPhase('idle')
     }
   }, [workspaceId])
@@ -67,7 +68,7 @@ export function XlsxImport({ workspaceId, onImported }: Props) {
       setPhase('done')
       onImported?.()
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al importar')
+      setError(e instanceof ApiError ? e.message : 'Error al importar')
       setPhase('preview')
     }
   }

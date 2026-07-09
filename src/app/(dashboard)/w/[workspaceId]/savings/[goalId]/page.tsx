@@ -15,11 +15,11 @@ export default async function SavingsGoalDetailPage({ params }: Props) {
   let goal = null
 
   try {
-    const [ws, g] = await Promise.all([
-      workspacesApi.get(workspaceId),
+    const [list, g] = await Promise.all([
+      workspacesApi.list(),
       savingsApi.get(workspaceId, goalId),
     ])
-    currency = ws.currency
+    currency = list.find((w) => w.id === workspaceId)?.currency ?? currency
     goal     = g
   } catch { /* fallback */ }
 
