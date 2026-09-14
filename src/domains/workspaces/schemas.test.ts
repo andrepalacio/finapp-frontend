@@ -18,14 +18,14 @@ describe('createWorkspaceSchema', () => {
 
 describe('inviteMemberSchema', () => {
   it('accepts a valid invite', () => {
-    expect(inviteMemberSchema.safeParse({ email: 'a@b.com', role: 'member' }).success).toBe(true)
+    expect(inviteMemberSchema.safeParse({ email: 'a@b.com', role: 'viewer' }).success).toBe(true)
   })
 
   it('rejects an invalid email', () => {
-    expect(inviteMemberSchema.safeParse({ email: 'not-an-email', role: 'member' }).success).toBe(false)
+    expect(inviteMemberSchema.safeParse({ email: 'not-an-email', role: 'viewer' }).success).toBe(false)
   })
 
-  it('rejects a role outside member/admin', () => {
+  it('rejects a role outside viewer/editor', () => {
     expect(inviteMemberSchema.safeParse({ email: 'a@b.com', role: 'owner' }).success).toBe(false)
   })
 })

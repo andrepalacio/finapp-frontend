@@ -9,6 +9,7 @@ import type { Debt }     from '@/types/domain'
 interface Props {
   workspaceId: string
   currency:    string
+  canWrite?:   boolean
 }
 
 function PlusIcon() {
@@ -19,7 +20,7 @@ function PlusIcon() {
   )
 }
 
-export function DebtList({ workspaceId, currency }: Props) {
+export function DebtList({ workspaceId, currency, canWrite = true }: Props) {
   const [formOpen, setFormOpen]       = useState(false)
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null)
   const { data: debts, isLoading }    = useDebts(workspaceId)
@@ -28,13 +29,15 @@ export function DebtList({ workspaceId, currency }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="page-title">Deudas</h1>
-        <button
-          onClick={() => setFormOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 active:scale-[0.98] transition-all"
-        >
-          <PlusIcon />
-          Nueva
-        </button>
+        {canWrite && (
+          <button
+            onClick={() => setFormOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 active:scale-[0.98] transition-all"
+          >
+            <PlusIcon />
+            Nueva
+          </button>
+        )}
       </div>
 
       {isLoading && (
@@ -58,17 +61,17 @@ export function DebtList({ workspaceId, currency }: Props) {
       )}
 
       {debts?.map((d) => (
-        <DebtCard key={d.id} debt={d} workspaceId={workspaceId} currency={currency} onEdit={setEditingDebt} />
+        <DebtCard key={d.id} debt={d} workspaceId={workspaceId} currency={currency} onEdit={setEditingDebt} canWrite={canWrite} />
       ))}
 
-      {formOpen && (
+      {canWrite && formOpen && (
         <DebtForm
           workspaceId={workspaceId}
           onClose={() => setFormOpen(false)}
         />
       )}
 
-      {editingDebt && (
+      {canWrite && editingDebt && (
         <DebtForm
           workspaceId={workspaceId}
           editingDebt={editingDebt}

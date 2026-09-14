@@ -13,9 +13,10 @@ interface Props {
   workspaceId: string
   currency:    string
   showDetail?: boolean
+  canWrite?:   boolean
 }
 
-export function GoalCard({ goal, workspaceId, currency, showDetail = false }: Props) {
+export function GoalCard({ goal, workspaceId, currency, showDetail = false, canWrite = true }: Props) {
   const [contributing, setContributing] = useState(false)
   const pct = goal.progress_pct
 
@@ -62,12 +63,14 @@ export function GoalCard({ goal, workspaceId, currency, showDetail = false }: Pr
           )}
         </div>
 
-        <button
-          onClick={() => setContributing(true)}
-          className="shrink-0 px-3 py-1.5 text-xs font-medium border border-line text-ink rounded-[var(--r-sm)] hover:bg-surface-2 transition-colors"
-        >
-          + Abonar
-        </button>
+        {canWrite && (
+          <button
+            onClick={() => setContributing(true)}
+            className="shrink-0 px-3 py-1.5 text-xs font-medium border border-line text-ink rounded-[var(--r-sm)] hover:bg-surface-2 transition-colors"
+          >
+            + Abonar
+          </button>
+        )}
       </div>
 
       {goal.remaining > 0 && (

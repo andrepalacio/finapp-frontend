@@ -12,16 +12,19 @@ interface Props {
 export default async function DebtDetailPage({ params }: Props) {
   const { workspaceId, debtId } = await params
 
-  let currency = 'COP'
-  let debtName = 'Deuda'
+  let currency  = 'COP'
+  let debtName  = 'Deuda'
   let principal = 0
+  let canWrite  = true
 
   try {
     const [list, debt] = await Promise.all([
       workspacesApi.list(),
       debtsApi.get(workspaceId, debtId),
     ])
-    currency  = list.find((w) => w.id === workspaceId)?.currency ?? currency
+    const ws  = list.find((w) => w.id === workspaceId)
+    currency  = ws?.currency ?? currency
+    canWrite  = ws?.role !== 'viewer'
     debtName  = debt.name
     principal = debt.principal
   } catch { /* fallback */ }
@@ -42,7 +45,7 @@ export default async function DebtDetailPage({ params }: Props) {
         </p>
       </div>
 
-      <ScheduleTable workspaceId={workspaceId} debtId={debtId} currency={currency} />
+      <ScheduleTable workspaceId={workspaceId} debtId={debtId} currency={currency} canWrite={canWrite} />
     </div>
   )
 }

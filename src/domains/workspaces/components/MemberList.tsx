@@ -17,14 +17,14 @@ interface Props {
 
 const roleBadge: Record<string, string> = {
   owner:  'bg-ink/10 text-ink',
-  admin:  'bg-gold/10 text-gold',
-  member: 'bg-surface-2 text-ink-3',
+  editor: 'bg-gold/10 text-gold',
+  viewer: 'bg-surface-2 text-ink-3',
 }
 
 const roleLabel: Record<string, string> = {
   owner:  'Owner',
-  admin:  'Admin',
-  member: 'Miembro',
+  editor: 'Editor',
+  viewer: 'Viewer',
 }
 
 export function MemberList({ workspaceId, ownerId, currentUserId, initialMembers, initialInvitations }: Props) {
@@ -93,8 +93,8 @@ export function MemberList({ workspaceId, ownerId, currentUserId, initialMembers
                 onChange={(v) => updateRole(m.user_id, v)}
                 disabled={loading === m.user_id + '-role'}
                 options={[
-                  { value: 'member', label: 'Miembro' },
-                  { value: 'admin',  label: 'Admin' },
+                  { value: 'viewer', label: 'Viewer' },
+                  { value: 'editor', label: 'Editor' },
                 ]}
               />
             ) : (

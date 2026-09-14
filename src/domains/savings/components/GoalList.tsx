@@ -8,6 +8,7 @@ import { GoalForm }          from './GoalForm'
 interface Props {
   workspaceId: string
   currency:    string
+  canWrite?:   boolean
 }
 
 function PlusIcon() {
@@ -18,7 +19,7 @@ function PlusIcon() {
   )
 }
 
-export function GoalList({ workspaceId, currency }: Props) {
+export function GoalList({ workspaceId, currency, canWrite = true }: Props) {
   const [formOpen, setFormOpen] = useState(false)
   const { data: goals, isLoading } = useSavingsGoals(workspaceId)
 
@@ -26,13 +27,15 @@ export function GoalList({ workspaceId, currency }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="page-title">Metas de ahorro</h1>
-        <button
-          onClick={() => setFormOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 active:scale-[0.98] transition-all"
-        >
-          <PlusIcon />
-          Nueva
-        </button>
+        {canWrite && (
+          <button
+            onClick={() => setFormOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 active:scale-[0.98] transition-all"
+          >
+            <PlusIcon />
+            Nueva
+          </button>
+        )}
       </div>
 
       {isLoading && (
@@ -52,20 +55,22 @@ export function GoalList({ workspaceId, currency }: Props) {
       {!isLoading && goals?.length === 0 && (
         <div className="bg-surface rounded-[var(--r-lg)] border border-line px-6 py-10 text-center">
           <p className="text-ink-3 text-sm mb-3">Sin metas de ahorro registradas</p>
-          <button
-            onClick={() => setFormOpen(true)}
-            className="px-4 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 transition-colors"
-          >
-            Crear meta
-          </button>
+          {canWrite && (
+            <button
+              onClick={() => setFormOpen(true)}
+              className="px-4 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 transition-colors"
+            >
+              Crear meta
+            </button>
+          )}
         </div>
       )}
 
       {goals?.map((goal) => (
-        <GoalCard key={goal.id} goal={goal} workspaceId={workspaceId} currency={currency} />
+        <GoalCard key={goal.id} goal={goal} workspaceId={workspaceId} currency={currency} canWrite={canWrite} />
       ))}
 
-      {formOpen && (
+      {canWrite && formOpen && (
         <GoalForm workspaceId={workspaceId} onClose={() => setFormOpen(false)} />
       )}
     </div>

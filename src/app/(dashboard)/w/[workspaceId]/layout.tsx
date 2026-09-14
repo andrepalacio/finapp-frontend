@@ -5,6 +5,7 @@ import { MobileNav } from '@/components/shell/MobileNav'
 import { requireAuth } from '@/lib/auth/session'
 import { workspaces as workspacesApi } from '@/lib/api/endpoints/workspaces'
 import { auth as authApi }             from '@/lib/api/endpoints/auth'
+import { RememberWorkspace } from '@/domains/workspaces/components/RememberWorkspace'
 
 interface Props {
   children: React.ReactNode
@@ -34,6 +35,7 @@ export default async function WorkspaceLayout({ children, params }: Props) {
 
   return (
     <div className="flex min-h-screen bg-bg">
+      <RememberWorkspace workspaceId={workspaceId} />
       <Sidebar
         workspaceId={workspaceId}
         workspaceName={currentWorkspace.name}

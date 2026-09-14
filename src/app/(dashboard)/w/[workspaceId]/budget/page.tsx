@@ -13,10 +13,13 @@ export default async function BudgetPage({ params }: Props) {
   const year  = now.getFullYear()
   const month = now.getMonth() + 1
 
-  let currency = 'COP'
+  let currency  = 'COP'
+  let canWrite  = true
   try {
     const list = await workspacesApi.list()
-    currency = list.find((w) => w.id === workspaceId)?.currency ?? currency
+    const ws   = list.find((w) => w.id === workspaceId)
+    currency   = ws?.currency ?? currency
+    canWrite   = ws?.role !== 'viewer'
   } catch { /* fallback */ }
 
   return (
@@ -30,6 +33,7 @@ export default async function BudgetPage({ params }: Props) {
         currency={currency}
         year={year}
         month={month}
+        canWrite={canWrite}
       />
     </div>
   )

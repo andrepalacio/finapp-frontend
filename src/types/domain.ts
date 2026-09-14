@@ -21,6 +21,7 @@ export interface Workspace {
   owner_id:   string
   created_at: string
   updated_at: string
+  role?:      WorkspaceRole
 }
 
 /* ── Category ────────────────────────────────────────────────────── */
@@ -171,7 +172,7 @@ export interface SavingsContribution {
 }
 
 /* ── Members ─────────────────────────────────────────────────────── */
-export type WorkspaceRole = 'owner' | 'admin' | 'member'
+export type WorkspaceRole = 'owner' | 'editor' | 'viewer'
 
 export interface WorkspaceMember {
   user_id:   string

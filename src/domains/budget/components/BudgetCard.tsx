@@ -12,9 +12,10 @@ interface Props {
   currency:    string
   year:        number
   month:       number
+  canWrite?:   boolean
 }
 
-export function BudgetCard({ workspaceId, currency, year, month }: Props) {
+export function BudgetCard({ workspaceId, currency, year, month, canWrite = true }: Props) {
   const [formOpen, setFormOpen] = useState(false)
   const { data: budget, isLoading } = useBudget(workspaceId, year, month)
 
@@ -31,12 +32,14 @@ export function BudgetCard({ workspaceId, currency, year, month }: Props) {
     return (
       <div className="bg-surface rounded-[var(--r-lg)] border border-line px-6 py-10 text-center">
         <p className="text-ink-3 text-sm mb-3">Sin presupuesto para este mes</p>
-        <button
-          onClick={() => setFormOpen(true)}
-          className="px-4 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 transition-colors"
-        >
-          Crear presupuesto
-        </button>
+        {canWrite && (
+          <button
+            onClick={() => setFormOpen(true)}
+            className="px-4 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 transition-colors"
+          >
+            Crear presupuesto
+          </button>
+        )}
         {formOpen && (
           <BudgetForm
             workspaceId={workspaceId}
@@ -66,12 +69,14 @@ export function BudgetCard({ workspaceId, currency, year, month }: Props) {
               {formatCurrency(budget.total_limit, currency)}
             </p>
           </div>
-          <button
-            onClick={() => setFormOpen(true)}
-            className="text-xs text-ink-3 hover:text-ink border border-line px-2.5 py-1 rounded-[var(--r-sm)] hover:bg-surface-2 transition-colors"
-          >
-            Editar
-          </button>
+          {canWrite && (
+            <button
+              onClick={() => setFormOpen(true)}
+              className="text-xs text-ink-3 hover:text-ink border border-line px-2.5 py-1 rounded-[var(--r-sm)] hover:bg-surface-2 transition-colors"
+            >
+              Editar
+            </button>
+          )}
         </div>
 
         {/* Total progress bar */}

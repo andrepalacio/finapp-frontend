@@ -23,9 +23,10 @@ interface Props {
   workspaceId: string
   currency:    string
   onEdit:      (debt: Debt) => void
+  canWrite?:   boolean
 }
 
-export function DebtCard({ debt, workspaceId, currency, onEdit }: Props) {
+export function DebtCard({ debt, workspaceId, currency, onEdit, canWrite = true }: Props) {
   return (
     <Link
       href={`/w/${workspaceId}/debts/${debt.id}`}
@@ -42,13 +43,15 @@ export function DebtCard({ debt, workspaceId, currency, onEdit }: Props) {
           <span className="text-[10px] uppercase tracking-[0.08em] bg-surface-2 text-ink-3 px-2 py-1 rounded-full font-medium">
             {debt.installments} cuotas
           </span>
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(debt) }}
-            className="p-1.5 text-ink-4 hover:text-ink hover:bg-surface-2 rounded-[var(--r-sm)] transition-colors"
-            aria-label="Editar deuda"
-          >
-            <PencilIcon />
-          </button>
+          {canWrite && (
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(debt) }}
+              className="p-1.5 text-ink-4 hover:text-ink hover:bg-surface-2 rounded-[var(--r-sm)] transition-colors"
+              aria-label="Editar deuda"
+            >
+              <PencilIcon />
+            </button>
+          )}
         </div>
       </div>
 

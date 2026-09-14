@@ -12,9 +12,10 @@ interface Props {
   workspaceId: string
   debtId:      string
   currency:    string
+  canWrite?:   boolean
 }
 
-export function ScheduleTable({ workspaceId, debtId, currency }: Props) {
+export function ScheduleTable({ workspaceId, debtId, currency, canWrite = true }: Props) {
   const { data: schedule, isLoading } = useDebtSchedule(workspaceId, debtId)
   const [paying, setPaying] = useState<DebtScheduleInstallment | null>(null)
 
@@ -68,11 +69,11 @@ export function ScheduleTable({ workspaceId, debtId, currency }: Props) {
               {schedule.map((row) => (
                 <tr
                   key={row.period}
-                  onClick={() => row.status === 'pending' && setPaying(row)}
+                  onClick={() => canWrite && row.status === 'pending' && setPaying(row)}
                   className={cn(
                     'transition-colors',
                     row.status === 'paid'    && 'opacity-50',
-                    row.status === 'pending' && 'hover:bg-surface-2/60 cursor-pointer',
+                    canWrite && row.status === 'pending' && 'hover:bg-surface-2/60 cursor-pointer',
                   )}
                 >
                   <td className="px-4 py-2.5 text-ink-3">{row.period}</td>

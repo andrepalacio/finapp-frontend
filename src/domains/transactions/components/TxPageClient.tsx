@@ -11,6 +11,7 @@ import type { Transaction }      from '@/types/domain'
 interface Props {
   workspaceId: string
   currency:    string
+  canWrite:    boolean
 }
 
 function PlusIcon() {
@@ -31,7 +32,7 @@ function UploadIcon() {
   )
 }
 
-export function TxPageClient({ workspaceId, currency }: Props) {
+export function TxPageClient({ workspaceId, currency, canWrite }: Props) {
   const searchParams               = useSearchParams()
   const [modalOpen, setModalOpen]  = useState(false)
   const [importOpen, setImportOpen] = useState(false)
@@ -59,26 +60,28 @@ export function TxPageClient({ workspaceId, currency }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="page-title">Transacciones</h1>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setImportOpen((o) => !o)}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-ink-3 border border-line rounded-[var(--r-sm)] hover:bg-surface-2 transition-colors"
-          >
-            <UploadIcon />
-            Importar
-          </button>
-          <button
-            onClick={openCreate}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 active:scale-[0.98] transition-all"
-          >
-            <PlusIcon />
-            Nueva
-          </button>
-        </div>
+        {canWrite && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setImportOpen((o) => !o)}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-ink-3 border border-line rounded-[var(--r-sm)] hover:bg-surface-2 transition-colors"
+            >
+              <UploadIcon />
+              Importar
+            </button>
+            <button
+              onClick={openCreate}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-ink text-bg rounded-[var(--r-sm)] hover:bg-ink-2 active:scale-[0.98] transition-all"
+            >
+              <PlusIcon />
+              Nueva
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Import panel */}
-      {importOpen && (
+      {canWrite && importOpen && (
         <div className="bg-surface rounded-[var(--r-lg)] border border-line p-5">
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm font-medium text-ink">Importar desde Excel</p>
@@ -97,16 +100,18 @@ export function TxPageClient({ workspaceId, currency }: Props) {
         workspaceId={workspaceId}
         currency={currency}
         params={filters}
-        onEdit={openEdit}
+        onEdit={canWrite ? openEdit : undefined}
       />
 
       {/* Modal */}
-      <TxModal
-        workspaceId={workspaceId}
-        open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditing(null) }}
-        editing={editing}
-      />
+      {canWrite && (
+        <TxModal
+          workspaceId={workspaceId}
+          open={modalOpen}
+          onClose={() => { setModalOpen(false); setEditing(null) }}
+          editing={editing}
+        />
+      )}
     </div>
   )
 }

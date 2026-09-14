@@ -12,14 +12,17 @@ export default async function SavingsGoalDetailPage({ params }: Props) {
   const { workspaceId, goalId } = await params
 
   let currency = 'COP'
-  let goal = null
+  let canWrite = true
+  let goal     = null
 
   try {
     const [list, g] = await Promise.all([
       workspacesApi.list(),
       savingsApi.get(workspaceId, goalId),
     ])
-    currency = list.find((w) => w.id === workspaceId)?.currency ?? currency
+    const ws = list.find((w) => w.id === workspaceId)
+    currency = ws?.currency ?? currency
+    canWrite = ws?.role !== 'viewer'
     goal     = g
   } catch { /* fallback */ }
 
@@ -42,6 +45,7 @@ export default async function SavingsGoalDetailPage({ params }: Props) {
           workspaceId={workspaceId}
           currency={currency}
           showDetail
+          canWrite={canWrite}
         />
       )}
 

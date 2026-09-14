@@ -25,7 +25,7 @@ export function InviteForm({ workspaceId, onInvited }: Props) {
     formState: { errors, isSubmitting },
   } = useForm<InviteMemberInput>({
     resolver:      zodResolver(inviteMemberSchema),
-    defaultValues: { email: '', role: 'member' },
+    defaultValues: { email: '', role: 'viewer' },
   })
 
   async function onSubmit(data: InviteMemberInput) {
@@ -58,8 +58,8 @@ export function InviteForm({ workspaceId, onInvited }: Props) {
               value={field.value}
               onChange={field.onChange}
               options={[
-                { value: 'member', label: 'Miembro' },
-                { value: 'admin',  label: 'Admin' },
+                { value: 'viewer', label: 'Viewer' },
+                { value: 'editor', label: 'Editor' },
               ]}
             />
           )}
