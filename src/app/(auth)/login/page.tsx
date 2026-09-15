@@ -1,4 +1,7 @@
+// React
 import { Suspense } from 'react'
+
+// Components
 import { LoginForm } from '@/domains/auth/components/LoginForm'
 
 export default function LoginPage() {
@@ -19,16 +22,8 @@ export default function LoginPage() {
 
         <div className="relative mt-auto">
           <blockquote className="font-serif text-[32px] leading-[1.15] tracking-tight -ml-0.5">
-            &ldquo;Cada peso que registras<br />
-            es un peso que entiendes.&rdquo;
+            &ldquo;Cada peso que registras es un peso que entiendes.&rdquo;
           </blockquote>
-          <div className="flex gap-5 mt-14 text-[11px] tracking-[0.08em] uppercase text-bg/45">
-            <span>Privado por diseno</span>
-            <span>·</span>
-            <span>Open source</span>
-            <span>·</span>
-            <span>Hecho en Colombia</span>
-          </div>
         </div>
       </div>
 

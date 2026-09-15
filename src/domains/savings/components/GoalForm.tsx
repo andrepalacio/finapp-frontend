@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { useCreateSavingsGoal } from '@/domains/savings/hooks/useSavings'
 import { createSavingsGoalSchema, type CreateSavingsGoalInput } from '@/domains/savings/schemas'
@@ -44,29 +45,31 @@ export function GoalForm({ workspaceId, onClose }: Props) {
       <DialogContent className="sm:max-w-sm bg-surface border-line">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl text-ink">Nueva meta de ahorro</DialogTitle>
+          <DialogDescription className="sr-only">Formulario para crear una nueva meta de ahorro</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 mt-2">
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Nombre</label>
-            <input type="text" placeholder="Fondo de emergencias" {...register('name')} className={inputCls} />
+            <label htmlFor="name" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Nombre</label>
+            <input id="name" type="text" placeholder="Fondo de emergencias" {...register('name')} className={inputCls} />
             {errors.name && <p className="text-[11px] text-terra mt-1">{errors.name.message}</p>}
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Monto objetivo</label>
-            <input type="number" step="1" min="0" {...register('target_amount', { valueAsNumber: true })} className={inputCls} />
+            <label htmlFor="target_amount" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Monto objetivo</label>
+            <input id="target_amount" type="number" step="1" min="0" {...register('target_amount', { valueAsNumber: true })} className={inputCls} />
             {errors.target_amount && <p className="text-[11px] text-terra mt-1">{errors.target_amount.message}</p>}
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Fecha limite <span className="normal-case text-ink-4">(opcional)</span></label>
-            <input type="date" {...register('deadline')} className={inputCls} />
+            <label htmlFor="deadline" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Fecha limite <span className="normal-case text-ink-4">(opcional)</span></label>
+            <input id="deadline" type="date" {...register('deadline')} className={inputCls} />
+            {errors.deadline && <p className="text-[11px] text-terra mt-1">{errors.deadline.message}</p>}
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Notas <span className="normal-case text-ink-4">(opcional)</span></label>
-            <textarea rows={2} {...register('notes')} className={`${inputCls} resize-none`} />
+            <label htmlFor="notes" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Notas <span className="normal-case text-ink-4">(opcional)</span></label>
+            <textarea id="notes" rows={2} {...register('notes')} className={`${inputCls} resize-none`} />
           </div>
 
           {errors.root && (

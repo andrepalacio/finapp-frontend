@@ -1,6 +1,6 @@
 'use client'
 
-import { useState }       from 'react'
+import { useState, useId } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver }         from '@hookform/resolvers/zod'
 import { useRouter }      from 'next/navigation'
@@ -36,6 +36,8 @@ export function WorkspaceCard({ ws, currentUserId, members, invitations }: Props
   const remove   = useDeleteWorkspace()
 
   const [mode, setMode] = useState<'view' | 'edit' | 'confirmDelete'>('view')
+  const nameId = useId()
+  const currencyId = useId()
 
   const {
     register,
@@ -119,17 +121,18 @@ export function WorkspaceCard({ ws, currentUserId, members, invitations }: Props
       {mode === 'edit' && (
         <form onSubmit={handleSubmit(onEdit)} noValidate className="space-y-3 pt-1 border-t border-line">
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Nombre</label>
-            <input type="text" {...register('name')} className={inputCls} />
+            <label htmlFor={nameId} className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Nombre</label>
+            <input id={nameId} type="text" {...register('name')} className={inputCls} />
             {errors.name && <p className="text-[11px] text-terra mt-1">{errors.name.message}</p>}
           </div>
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Moneda</label>
+            <label htmlFor={currencyId} className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Moneda</label>
             <Controller
               control={control}
               name="currency"
               render={({ field }) => (
                 <Select
+                  id={currencyId}
                   value={field.value}
                   onChange={field.onChange}
                   className="w-full py-2.5 text-sm"

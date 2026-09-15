@@ -31,6 +31,16 @@ export function useCreateTransaction(workspaceId: string) {
   })
 }
 
+export function useUpdateTransaction(workspaceId: string, id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: Partial<CreateTransactionInput>) =>
+      transactions.update(workspaceId, id, data),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['transactions', workspaceId] }),
+  })
+}
+
 export function useDeleteTransaction(workspaceId: string) {
   const qc = useQueryClient()
   return useMutation({

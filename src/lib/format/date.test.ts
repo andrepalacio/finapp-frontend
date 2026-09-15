@@ -23,8 +23,14 @@ describe('formatMonthYear', () => {
 })
 
 describe('toISODate', () => {
-  it('formats a Date as YYYY-MM-DD', () => {
-    expect(toISODate(new Date(Date.UTC(2026, 2, 15)))).toBe('2026-03-15')
+  it('formats a Date as YYYY-MM-DD using local calendar fields', () => {
+    expect(toISODate(new Date(2026, 2, 15))).toBe('2026-03-15')
+  })
+
+  it('does not roll over to the next day in timezones behind UTC', () => {
+    // 11pm local time is already the next day in UTC (e.g. America/Bogota, UTC-5).
+    // toISODate must report the local date, not the UTC one.
+    expect(toISODate(new Date(2026, 2, 15, 23, 0))).toBe('2026-03-15')
   })
 })
 

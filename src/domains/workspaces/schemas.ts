@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const createWorkspaceSchema = z.object({
-  name:     z.string().min(1),
+  name:     z.string().min(1, 'Requerido'),
   currency: z.string().length(3, 'Codigo ISO 4217 de 3 letras'),
 })
 

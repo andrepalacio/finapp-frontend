@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect }                        from 'react'
+import { useEffect, cloneElement, type ReactElement } from 'react'
 import { useForm, Controller }               from 'react-hook-form'
 import { zodResolver }         from '@hookform/resolvers/zod'
 import {
@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { useCreateDebt, useUpdateDebt } from '@/domains/debts/hooks/useDebts'
 import { createDebtSchema, type CreateDebtInput } from '@/domains/debts/schemas'
@@ -77,10 +78,10 @@ export function DebtForm({ workspaceId, onClose, editingDebt }: Props) {
     }
   }
 
-  const field = (label: string, children: React.ReactNode, error?: string) => (
+  const field = (label: string, children: ReactElement, error?: string, id?: string) => (
     <div>
-      <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">{label}</label>
-      {children}
+      <label htmlFor={id} className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">{label}</label>
+      {id ? cloneElement(children, { id }) : children}
       {error && <p className="text-[11px] text-terra mt-1">{error}</p>}
     </div>
   )
@@ -94,21 +95,25 @@ export function DebtForm({ workspaceId, onClose, editingDebt }: Props) {
           <DialogTitle className="font-serif text-xl text-ink">
             {isEdit ? 'Editar deuda' : 'Nueva deuda'}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Formulario para {isEdit ? 'editar los datos de la' : 'registrar una nueva'} deuda o prestamo
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 mt-2">
-          {field('Nombre', <input type="text" placeholder="Credito de consumo" {...register('name')} className={inputCls} />, errors.name?.message)}
-          {field('Prestamista', <input type="text" placeholder="Banco XYZ (opcional)" {...register('lender')} className={inputCls} />)}
+          {field('Nombre', <input type="text" placeholder="Credito de consumo" {...register('name')} className={inputCls} />, errors.name?.message, 'name')}
+          {field('Prestamista', <input type="text" placeholder="Banco XYZ (opcional)" {...register('lender')} className={inputCls} />, undefined, 'lender')}
 
           <div className="grid grid-cols-2 gap-3">
-            {field('Capital', <input type="number" step="1" min="0" {...register('principal', { valueAsNumber: true })} className={inputCls} />, errors.principal?.message)}
-            {field('Cuotas', <input type="number" step="1" min="1" {...register('installments', { valueAsNumber: true })} className={inputCls} />, errors.installments?.message)}
+            {field('Capital', <input type="number" step="1" min="0" {...register('principal', { valueAsNumber: true })} className={inputCls} />, errors.principal?.message, 'principal')}
+            {field('Cuotas', <input type="number" step="1" min="1" {...register('installments', { valueAsNumber: true })} className={inputCls} />, errors.installments?.message, 'installments')}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             {field('Tasa (%)',
               <input type="number" step="0.0001" min="0" placeholder="25.59" {...register('rate', { valueAsNumber: true })} className={inputCls} />,
-              errors.rate?.message
+              errors.rate?.message,
+              'rate'
             )}
             {field('Tipo de tasa',
               <Controller
@@ -116,6 +121,7 @@ export function DebtForm({ workspaceId, onClose, editingDebt }: Props) {
                 name="rate_type"
                 render={({ field: f }) => (
                   <Select
+                    id="rate_type"
                     value={f.value}
                     onChange={f.onChange}
                     className="w-full py-2.5 text-sm"
@@ -126,13 +132,16 @@ export function DebtForm({ workspaceId, onClose, editingDebt }: Props) {
                     ]}
                   />
                 )}
-              />
+              />,
+              undefined,
+              'rate_type'
             )}
           </div>
 
           {field('Fecha primer pago',
             <input type="date" {...register('first_payment_date')} className={inputCls} />,
-            errors.first_payment_date?.message
+            errors.first_payment_date?.message,
+            'first_payment_date'
           )}
 
           <div className="border border-line rounded-[var(--r-sm)] p-3 space-y-3">
@@ -144,6 +153,7 @@ export function DebtForm({ workspaceId, onClose, editingDebt }: Props) {
                   name="insurance_type"
                   render={({ field: f }) => (
                     <Select
+                      id="insurance_type"
                       value={f.value}
                       onChange={f.onChange}
                       className="w-full py-2.5 text-sm"
@@ -154,7 +164,9 @@ export function DebtForm({ workspaceId, onClose, editingDebt }: Props) {
                       ]}
                     />
                   )}
-                />
+                />,
+                undefined,
+                'insurance_type'
               )}
               {insuranceType
               ? field(
@@ -167,7 +179,8 @@ export function DebtForm({ workspaceId, onClose, editingDebt }: Props) {
                     {...register('insurance_rate', { valueAsNumber: true })}
                     className={inputCls}
                   />,
-                  errors.insurance_rate?.message
+                  errors.insurance_rate?.message,
+                  'insurance_rate'
                 )
               : <div />
             }
@@ -175,7 +188,9 @@ export function DebtForm({ workspaceId, onClose, editingDebt }: Props) {
           </div>
 
           {field('Notas',
-            <textarea rows={2} {...register('notes')} className={`${inputCls} resize-none`} />
+            <textarea rows={2} {...register('notes')} className={`${inputCls} resize-none`} />,
+            undefined,
+            'notes'
           )}
 
           {errors.root && (

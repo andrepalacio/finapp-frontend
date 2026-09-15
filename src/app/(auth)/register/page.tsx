@@ -1,3 +1,4 @@
+// Components
 import { RegisterForm } from '@/domains/auth/components/RegisterForm'
 
 const features = [
@@ -25,7 +26,7 @@ export default function RegisterPage() {
 
         <div className="relative mt-auto">
           <blockquote className="font-serif text-[32px] leading-[1.2] tracking-tight -ml-0.5">
-            Empieza con la version<br /> gratuita &mdash;<br /> sin tarjeta.
+            Empieza con la versión gratuita &mdash; sin tarjeta
           </blockquote>
           <ul className="mt-8 space-y-3.5">
             {features.map(({ emoji, text }) => (

@@ -53,10 +53,13 @@ export function BudgetCard({ workspaceId, currency, year, month, canWrite = true
     )
   }
 
+  // Backend omits total_spent/remaining when nothing has been spent yet.
+  const totalSpent = budget.total_spent ?? 0
+  const remaining  = budget.remaining ?? budget.total_limit
   const pct     = budget.total_limit > 0
-    ? Math.min((budget.total_spent / budget.total_limit) * 100, 100)
+    ? Math.min((totalSpent / budget.total_limit) * 100, 100)
     : 0
-  const isOver  = budget.total_spent > budget.total_limit
+  const isOver  = totalSpent > budget.total_limit
 
   return (
     <div className="space-y-4">
@@ -88,16 +91,16 @@ export function BudgetCard({ workspaceId, currency, year, month, canWrite = true
             />
           </div>
           <div className="flex justify-between text-xs text-ink-3 tabular-nums">
-            <span>Gastado: {formatCurrency(budget.total_spent, currency)}</span>
+            <span>Gastado: {formatCurrency(totalSpent, currency)}</span>
             <span className={isOver ? 'text-terra' : ''}>
-              {isOver ? 'Excedido' : `Restante: ${formatCurrency(budget.remaining, currency)}`}
+              {isOver ? 'Excedido' : `Restante: ${formatCurrency(remaining, currency)}`}
             </span>
           </div>
         </div>
       </div>
 
       {/* Per-category */}
-      {budget.categories.length > 0 && (
+      {budget.categories?.length > 0 && (
         <div className="bg-surface rounded-[var(--r-lg)] border border-line overflow-hidden">
           <p className="px-4 py-2.5 text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 border-b border-line bg-surface-2/50">
             Por categoria

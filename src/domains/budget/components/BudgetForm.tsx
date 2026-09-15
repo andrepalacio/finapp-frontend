@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { useCategories }    from '@/domains/categories/hooks/useCategories'
 import { useUpsertBudget }  from '@/domains/budget/hooks/useBudget'
@@ -43,7 +44,7 @@ export function BudgetForm({ workspaceId, currency, year, month, existing, onClo
       year,
       month,
       total_limit: existing?.total_limit ?? 0,
-      categories:  existing?.categories.map((c) => ({
+      categories:  existing?.categories?.map((c) => ({
         category_id:  c.category_id,
         limit_amount: c.limit_amount,
       })) ?? [],
@@ -72,6 +73,9 @@ export function BudgetForm({ workspaceId, currency, year, month, existing, onClo
           <DialogTitle className="font-serif text-xl text-ink">
             {existing ? 'Editar presupuesto' : 'Nuevo presupuesto'}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Formulario para {existing ? 'editar el' : 'crear un'} presupuesto mensual y sus limites por categoria
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 mt-2">
@@ -80,10 +84,11 @@ export function BudgetForm({ workspaceId, currency, year, month, existing, onClo
 
           {/* Total limit */}
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+            <label htmlFor="total_limit" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
               Limite total
             </label>
             <input
+              id="total_limit"
               type="number"
               step="1"
               min="0"
@@ -116,6 +121,7 @@ export function BudgetForm({ workspaceId, currency, year, month, existing, onClo
                         type="number"
                         step="1"
                         min="0"
+                        aria-label={`Limite para ${cat?.name ?? 'categoria'}`}
                         {...register(`categories.${index}.limit_amount`, { valueAsNumber: true })}
                         className="w-32 px-2.5 py-1.5 text-sm bg-bg border border-line rounded-[var(--r-sm)] text-ink focus:outline-none focus:border-ink transition-colors"
                       />

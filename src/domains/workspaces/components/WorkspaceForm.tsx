@@ -56,10 +56,11 @@ export function WorkspaceForm({ onSuccess, submitLabel = 'Crear workspace' }: Pr
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
       {/* Nombre */}
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+        <label htmlFor="name" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
           Nombre
         </label>
         <input
+          id="name"
           type="text"
           placeholder="Personal"
           {...register('name')}
@@ -72,7 +73,7 @@ export function WorkspaceForm({ onSuccess, submitLabel = 'Crear workspace' }: Pr
 
       {/* Moneda */}
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+        <label htmlFor="currency" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
           Moneda principal
         </label>
         <Controller
@@ -80,6 +81,7 @@ export function WorkspaceForm({ onSuccess, submitLabel = 'Crear workspace' }: Pr
           name="currency"
           render={({ field }) => (
             <Select
+              id="currency"
               value={field.value}
               onChange={field.onChange}
               className="w-full py-2.5 text-sm"

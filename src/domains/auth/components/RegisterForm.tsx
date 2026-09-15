@@ -58,10 +58,11 @@ export function RegisterForm() {
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
       {/* Nombre */}
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+        <label htmlFor="name" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
           Nombre completo
         </label>
         <input
+          id="name"
           type="text"
           autoComplete="name"
           placeholder="Mariana Rivera"
@@ -75,10 +76,11 @@ export function RegisterForm() {
 
       {/* Email */}
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+        <label htmlFor="email" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
           Correo
         </label>
         <input
+          id="email"
           type="email"
           autoComplete="email"
           {...register('email')}
@@ -91,11 +93,12 @@ export function RegisterForm() {
 
       {/* Password + strength */}
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+        <label htmlFor="password" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
           Contrasena
         </label>
         <div className="relative">
           <input
+            id="password"
             type={showPwd ? 'text' : 'password'}
             autoComplete="new-password"
             {...register('password')}

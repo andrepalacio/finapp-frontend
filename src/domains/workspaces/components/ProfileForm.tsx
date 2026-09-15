@@ -40,14 +40,14 @@ export function ProfileForm({ user }: Props) {
   return (
     <form onSubmit={handleSubmit((d) => update.mutate(d))} noValidate className="space-y-4">
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Nombre</label>
-        <input type="text" {...register('name')} className={inputCls} />
+        <label htmlFor="name" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Nombre</label>
+        <input id="name" type="text" {...register('name')} className={inputCls} />
         {errors.name && <p className="text-[11px] text-terra mt-1">{errors.name.message}</p>}
       </div>
 
       <div>
-        <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Correo</label>
-        <input type="email" {...register('email')} className={inputCls} />
+        <label htmlFor="email" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Correo</label>
+        <input id="email" type="email" {...register('email')} className={inputCls} />
         {errors.email && <p className="text-[11px] text-terra mt-1">{errors.email.message}</p>}
       </div>
 

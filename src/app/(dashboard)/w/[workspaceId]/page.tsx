@@ -3,13 +3,10 @@ import { workspaces as workspacesApi } from '@/lib/api/endpoints/workspaces'
 import { SummaryStrip }               from '@/domains/transactions/components/SummaryStrip'
 import Link                           from 'next/link'
 import type { WorkspaceSummary }      from '@/types/domain'
+import { toISODate }                  from '@/lib/format/date'
 
 interface Props {
   params: Promise<{ workspaceId: string }>
-}
-
-function toISODate(d: Date) {
-  return d.toISOString().slice(0, 10)
 }
 
 export default async function WorkspaceDashboardPage({ params }: Props) {

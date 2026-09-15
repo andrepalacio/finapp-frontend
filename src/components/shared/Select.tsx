@@ -14,6 +14,7 @@ export interface SelectOption {
 }
 
 interface Props {
+  id?:          string
   value:        string
   onChange:     (value: string) => void
   options:      SelectOption[]
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export function Select({
+  id,
   value,
   onChange,
   options,
@@ -49,6 +51,7 @@ export function Select({
     <Popover open={open && !disabled} onOpenChange={(v) => !disabled && setOpen(v)}>
       <PopoverTrigger asChild>
         <button
+          id={id}
           type="button"
           disabled={disabled}
           className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-surface border border-line rounded-[var(--r-sm)] transition-colors focus:outline-none focus:border-ink ${selected ? 'text-ink' : 'text-ink-4'} disabled:opacity-50 disabled:cursor-not-allowed ${className ?? ''}`}

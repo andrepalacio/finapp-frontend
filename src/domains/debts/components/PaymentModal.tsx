@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { useCreatePayment } from '@/domains/debts/hooks/useDebts'
 import { todayISO }         from '@/lib/format/date'
@@ -16,7 +17,7 @@ import { ApiError }         from '@/lib/api/client'
 import type { DebtScheduleInstallment } from '@/types/domain'
 
 const schema = z.object({
-  amount:  z.number().positive(),
+  amount:  z.number().positive('Debe ser mayor a 0'),
   paid_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   notes:   z.string().nullable().optional(),
 })
@@ -62,6 +63,9 @@ export function PaymentModal({ workspaceId, debtId, installment, currency, onClo
           <DialogTitle className="font-serif text-xl text-ink">
             Registrar pago
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Formulario para registrar el pago de la cuota {installment.period}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="bg-surface-2 rounded-[var(--r-sm)] px-3 py-2.5 mb-1">
@@ -73,19 +77,19 @@ export function PaymentModal({ workspaceId, debtId, installment, currency, onClo
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Monto pagado</label>
-            <input type="number" step="1" min="0" {...register('amount', { valueAsNumber: true })} className={inputCls} />
+            <label htmlFor="amount" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Monto pagado</label>
+            <input id="amount" type="number" step="1" min="0" {...register('amount', { valueAsNumber: true })} className={inputCls} />
             {errors.amount && <p className="text-[11px] text-terra mt-1">{errors.amount.message}</p>}
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Fecha de pago</label>
-            <input type="date" {...register('paid_at')} className={inputCls} />
+            <label htmlFor="paid_at" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Fecha de pago</label>
+            <input id="paid_at" type="date" {...register('paid_at')} className={inputCls} />
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Notas <span className="normal-case text-ink-4">(opcional)</span></label>
-            <input type="text" {...register('notes')} className={inputCls} />
+            <label htmlFor="notes" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Notas <span className="normal-case text-ink-4">(opcional)</span></label>
+            <input id="notes" type="text" {...register('notes')} className={inputCls} />
           </div>
 
           {errors.root && (

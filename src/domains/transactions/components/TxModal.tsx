@@ -8,9 +8,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { useCategories }          from '@/domains/categories/hooks/useCategories'
-import { useCreateTransaction, useDeleteTransaction } from '@/domains/transactions/hooks/useTransactions'
+import { useCreateTransaction, useUpdateTransaction, useDeleteTransaction } from '@/domains/transactions/hooks/useTransactions'
 import { createTransactionSchema, type CreateTransactionInput } from '@/domains/transactions/schemas'
 import { todayISO }               from '@/lib/format/date'
 import { ApiError }               from '@/lib/api/client'
@@ -33,6 +34,7 @@ const TYPE_LABELS = {
 export function TxModal({ workspaceId, open, onClose, editing }: Props) {
   const { data: cats }  = useCategories(workspaceId)
   const createTx        = useCreateTransaction(workspaceId)
+  const updateTx        = useUpdateTransaction(workspaceId, editing?.id ?? '')
   const deleteTx        = useDeleteTransaction(workspaceId)
 
   const {
@@ -66,7 +68,11 @@ export function TxModal({ workspaceId, open, onClose, editing }: Props) {
 
   async function onSubmit(data: CreateTransactionInput) {
     try {
-      await createTx.mutateAsync(data)
+      if (editing) {
+        await updateTx.mutateAsync(data)
+      } else {
+        await createTx.mutateAsync(data)
+      }
       onClose()
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : 'Error al guardar'
@@ -93,6 +99,9 @@ export function TxModal({ workspaceId, open, onClose, editing }: Props) {
           <DialogTitle className="font-serif text-xl text-ink">
             {editing ? 'Editar transaccion' : 'Nueva transaccion'}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Formulario para {editing ? 'editar los datos de la' : 'registrar una nueva'} transaccion
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 mt-2">
@@ -113,10 +122,11 @@ export function TxModal({ workspaceId, open, onClose, editing }: Props) {
 
           {/* Amount */}
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+            <label htmlFor="amount" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
               Monto
             </label>
             <input
+              id="amount"
               type="number"
               step="1"
               min="0"
@@ -131,10 +141,11 @@ export function TxModal({ workspaceId, open, onClose, editing }: Props) {
 
           {/* Date */}
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+            <label htmlFor="date" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
               Fecha
             </label>
             <input
+              id="date"
               type="date"
               {...register('date')}
               className="w-full px-3 py-2.5 text-sm bg-bg border border-line rounded-[var(--r-sm)] text-ink focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink/10 transition-colors"
@@ -147,7 +158,7 @@ export function TxModal({ workspaceId, open, onClose, editing }: Props) {
           {/* Category — hidden for transfer */}
           {txType !== 'transfer' && (
             <div>
-              <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+              <label htmlFor="category_id" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
                 Categoria
               </label>
               <Controller
@@ -155,6 +166,7 @@ export function TxModal({ workspaceId, open, onClose, editing }: Props) {
                 name="category_id"
                 render={({ field }) => (
                   <Select
+                    id="category_id"
                     value={field.value ?? ''}
                     onChange={field.onChange}
                     clearable
@@ -172,10 +184,11 @@ export function TxModal({ workspaceId, open, onClose, editing }: Props) {
 
           {/* Description */}
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
+            <label htmlFor="description" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">
               Descripcion <span className="normal-case text-ink-4">(opcional)</span>
             </label>
             <input
+              id="description"
               type="text"
               placeholder="Mercado semanal..."
               {...register('description')}

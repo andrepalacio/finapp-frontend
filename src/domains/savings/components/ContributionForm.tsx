@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { useCreateContribution } from '@/domains/savings/hooks/useSavings'
 import { createContributionSchema, type CreateContributionInput } from '@/domains/savings/schemas'
@@ -49,12 +50,14 @@ export function ContributionForm({ workspaceId, goalId, onClose }: Props) {
       <DialogContent className="sm:max-w-sm bg-surface border-line">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl text-ink">Agregar abono</DialogTitle>
+          <DialogDescription className="sr-only">Formulario para registrar un abono a la meta de ahorro</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 mt-2">
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Monto</label>
+            <label htmlFor="amount" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Monto</label>
             <input
+              id="amount"
               type="number"
               step="1"
               min="0"
@@ -66,13 +69,13 @@ export function ContributionForm({ workspaceId, goalId, onClose }: Props) {
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Fecha</label>
-            <input type="date" {...register('contributed_at')} className={inputCls} />
+            <label htmlFor="contributed_at" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Fecha</label>
+            <input id="contributed_at" type="date" {...register('contributed_at')} className={inputCls} />
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Notas <span className="normal-case text-ink-4">(opcional)</span></label>
-            <input type="text" {...register('notes')} className={inputCls} />
+            <label htmlFor="notes" className="block text-[11px] uppercase tracking-[0.08em] font-medium text-ink-3 mb-1.5">Notas <span className="normal-case text-ink-4">(opcional)</span></label>
+            <input id="notes" type="text" {...register('notes')} className={inputCls} />
           </div>
 
           {errors.root && (
