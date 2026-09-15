@@ -5,19 +5,13 @@ import { useDebts }      from '@/domains/debts/hooks/useDebts'
 import { DebtCard }      from './DebtCard'
 import { DebtForm }      from './DebtForm'
 import type { Debt }     from '@/types/domain'
+import { PlusIcon }      from '@/components/shared/icons'
+import { EmptyState }    from '@/components/shared/EmptyState'
 
 interface Props {
   workspaceId: string
   currency:    string
   canWrite?:   boolean
-}
-
-function PlusIcon() {
-  return (
-    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  )
 }
 
 export function DebtList({ workspaceId, currency, canWrite = true }: Props) {
@@ -54,10 +48,10 @@ export function DebtList({ workspaceId, currency, canWrite = true }: Props) {
       )}
 
       {!isLoading && debts?.length === 0 && (
-        <div className="bg-surface rounded-[var(--r-lg)] border border-line px-6 py-12 text-center">
-          <p className="text-ink-3 text-sm">Sin deudas registradas</p>
-          <p className="text-ink-4 text-xs mt-1">Registra un credito o prestamo usando el boton +</p>
-        </div>
+        <EmptyState
+          title="Sin deudas registradas"
+          description="Registra un credito o prestamo usando el boton +"
+        />
       )}
 
       {debts?.map((d) => (

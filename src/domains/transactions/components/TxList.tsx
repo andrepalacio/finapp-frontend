@@ -5,6 +5,7 @@ import { useTransactions }  from '@/domains/transactions/hooks/useTransactions'
 import { useCategories }    from '@/domains/categories/hooks/useCategories'
 import { TxCard }           from './TxCard'
 import { formatDate }       from '@/lib/format/date'
+import { EmptyState }       from '@/components/shared/EmptyState'
 import type { Transaction } from '@/types/domain'
 import type { ListTransactionsParams } from '@/lib/api/endpoints/transactions'
 
@@ -60,10 +61,10 @@ export function TxList({ workspaceId, currency, params, onEdit }: Props) {
 
   if (!data?.items.length) {
     return (
-      <div className="bg-surface rounded-[var(--r-lg)] border border-line px-6 py-12 text-center">
-        <p className="text-ink-3 text-sm">Sin transacciones</p>
-        <p className="text-ink-4 text-xs mt-1">Agrega la primera usando el boton +</p>
-      </div>
+      <EmptyState
+        title="Sin transacciones"
+        description="Agrega la primera usando el boton +"
+      />
     )
   }
 
